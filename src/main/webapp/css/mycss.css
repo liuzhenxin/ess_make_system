@@ -1,0 +1,65 @@
+.title{
+    background: #3d9cd0;
+}
+.main_windows{
+    width: 100%;
+    height: 100%;
+}
+.top{
+    width: 100%;
+    height: 20%;
+}
+.html, body
+{
+    margin: 0;
+    padding: 0;
+    background: url('../images/html_bg.jpg');
+    repeat: no-repeat;
+    background-attachment:fixed;
+    filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/background.jpg', sizingMethod='scale');
+    -ms-filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/background.jpg', sizingMethod='scale');
+    background-size: cover;
+    -moz-background-size: cover;
+    -webkit-background-size: cover;
+}
+/* 下面是左侧导航栏的代码 */  
+.sidebar {  
+    position: fixed;  
+    top: 51px;  
+    bottom: 0;  
+    left: 0;  
+    z-index: 1000;  
+    display: block;  
+    padding: 20px;  
+    overflow-x: hidden;  
+    overflow-y: auto;   
+    border-right: 1px solid #eee; 
+    background-color: rgba(238, 238, 241, 0.57) !important;/* IE9、标准浏览器、IE6和部分IE7内核的浏览器(如QQ浏览器)会读懂 */
+    filter:Alpha(opacity=57);
+    background-color:#eeeef7; /* 使用IE专属滤镜实现IE背景透明 */ 
+}  
+
+.nav-sidebar {  
+    margin-right: -21px;  
+    margin-bottom: 20px;  
+    margin-left: -20px;  
+}  
+
+.nav-sidebar > li > a {  
+    padding-right: 20px;  
+    padding-left: 20px;  
+}  
+
+.nav-sidebar > .active > a,  
+.nav-sidebar > .active > a:hover,  
+.nav-sidebar > .active > a:focus {  
+    color: #fff;  
+    background-color: #428bca;  
+}  
+.main {  
+    padding: 20px;  
+}  
+
+.main .page-header {  
+    margin-top: 0;  
+}  

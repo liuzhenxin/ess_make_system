@@ -1,0 +1,181 @@
+html,body{
+    height: 100%;
+    min-width: 1024px;
+    /*min-height: 768px !important;*/
+}
+
+.ub {
+    display: -webkit-box;
+    /*Chrome, Safari*/
+    display: -moz-box-shadow;
+    /*Firefox*/
+    display: -ms-flexbox;
+    /*IE*/
+    position: relative;
+}
+
+.ub-f1 {
+    position: relative;
+    -moz-box-flex: 1;
+    /* Firefox */
+    -webkit-box-flex: 1;
+    /* Safari and Chrome */
+    -ms-flex: 1;
+    /* Internet Explorer 10 */
+    box-flex: 1;
+    width: 0;
+}
+.ub-ac {
+    -ms-flex-align: center;
+    -moz-box-align: center;
+    -webkit-box-align: center;
+    box-align: center;
+}
+
+.ub-ae {
+    -ms-flex-align: end;
+    -moz-box-align: end;
+    -webkit-box-align: end;
+    box-align: end;
+}
+/*设置盒子内容水平垂直居中*/
+
+.boxCenter {
+    display: -webkit-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/*边距*/
+.m-t-6{
+    margin-top: 6px;
+}
+.m-t-8{
+    margin-top: 8px;
+}
+.m-t-17{
+    margin-top: 17px;
+}
+.m-t-20{
+    margin-top: 20px;
+}
+.m-t-30{
+    margin-top: 30px;
+}
+.m-t-55{
+    margin-top: 55px;
+}
+.m-b-20{
+    margin-bottom: 20px;
+}
+.m-l-10{
+    margin-left: 10px;
+}
+.m-l-20{
+    margin-left: 20px;
+}
+.m-l-100{
+    margin-left: 100px;
+}
+.m-r-10{
+    margin-right: 10px;
+}
+.p-b-20{
+    padding-bottom: 20px;
+}
+.p-l-20 {
+    padding-left: 20px;
+}
+.p-t-10{
+    padding-top: 10px;
+}
+.p-b-10{
+    padding-bottom: 10px;
+}
+.p-20{
+    padding: 20px;
+}
+/*字体*/
+.f-s-30{
+    font-size: 30px;
+}
+
+/*背景颜色*/
+.b-f{
+    background-color: #fff;
+}
+.b-f5{
+    background-color: #f5f5f5;
+}
+.b-f7{
+    background-color: #f7f7f7;
+}
+/*字体颜色*/
+.c-base{
+    color: #0ae;
+}
+.c-f{
+    color: #fff;
+}
+.c-3{
+     color:#333;
+}
+.c-6{
+    color:#666;
+}
+.click{
+    cursor: pointer;
+}
+.f-w{
+    font-weight: bold;
+}
+.f-s-14{
+    font-size: 14px;
+}
+.border{
+    border: 1px #0ae solid;
+}
+.border-b{
+    border-bottom: 1px #dedede solid;
+}
+/*按钮统一样式*/
+.btn{
+    padding: 10px 20px;
+    background-color: #0ae;
+    color: #fff;
+}
+/*a标签去掉下划线*/
+a:link {text-decoration:none;!important;}
+a:visited {text-decoration:none;!important;}
+a:hover {text-decoration:none !important;}
+
+
+/*输入框长度*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

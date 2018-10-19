@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clt.ess.dao.IPersonDao">
+
+    <resultMap type="Person" id="personMap">
+        <id property="personId" column="personId"/>
+        <result property="personName" column="personName"/>
+        <result property="phone" column="phone"/>
+        <result property="idNum" column="idNum"/>
+        <result property="personImgBase64" column="personImgBase64"/>
+        <result property="sex" column="sex"/>
+        <result property="state" column="state"/>
+    </resultMap>
+    <select id="findPerson" resultMap="personMap">
+        SELECT * FROM person
+        <where>
+            state = #{state}
+            <if test="personId != null">
+                AND personId = #{personId}
+            </if>
+            <if test="personName != null">
+                AND personName = #{personName}
+            </if>
+            <if test="phone != null">
+                AND phone = #{phone}
+            </if>
+            <if test="idNum != null">
+                AND idNum = #{idNum}
+            </if>
+            <if test="personImgBase64 != null">
+                AND personImgBase64 = #{personImgBase64}
+            </if>
+            <if test="sex!=0">
+                AND sex = #{sex}
+            </if>
+
+        </where>
+    </select>
+
+
+    <select id="findPersonById" resultMap="personMap">
+        SELECT * FROM person
+        WHERE
+         personId = #{personId}
+    </select>
+
+
+    <select id="findPersonListByKeyword" resultMap="personMap">
+        SELECT * FROM person
+        WHERE
+        state = 1 and
+        concat(phone,idNum,personName) like CONCAT('%',#{keyword},'%')
+    </select>
+
+</mapper>

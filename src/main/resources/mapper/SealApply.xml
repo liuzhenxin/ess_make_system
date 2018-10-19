@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clt.ess.dao.ISealApplyDao">
+
+    <resultMap type="SealApply" id="sealApplyMap">
+        <id property="sealApplyId" column="sealApplyId" />
+        <result property="applyType" column="applyType"/>
+        <result property="sealId" column="sealId"/>
+        <result property="sealName" column="sealName"/>
+        <result property="sealImgId" column="sealImgId"/>
+        <result property="certificateId" column="certificateId"/>
+        <result property="unitId" column="unitId"/>
+        <result property="sealTypeId" column="sealTypeId"/>
+        <result property="isUK" column="isUK"/>
+        <result property="cerIssuer" column="cerIssuer"/>
+        <result property="fileTypeNum" column="fileTypeNum"/>
+        <result property="keyId" column="keyId"/>
+        <result property="isImageImport" column="isImageImport"/>
+        <result property="isAuthorizedImport" column="isAuthorizedImport"/>
+        <result property="sealStartTime" column="sealStartTime"/>
+        <result property="sealEndTime" column="sealEndTime"/>
+
+        <result property="authorizationTime" column="authorizationTime"/>
+        <result property="authorizationInfo" column="authorizationInfo"/>
+
+        <result property="controlUserId" column="controlUserId"/>
+        <result property="sealHwUserIdNum" column="sealHwUserIdNum"/>
+        <result property="applyUserId" column="applyUserId"/>
+        <result property="applyTime" column="applyTime"/>
+        <result property="reviewUserId" column="reviewUserId"/>
+        <result property="reviewTime" column="reviewTime"/>
+        <result property="makeUserId" column="makeUserId"/>
+        <result property="makeTime" column="makeTime"/>
+        <result property="applyState" column="applyState"/>
+        <result property="attachment" column="attachment"/>
+        <result property="cardType" column="cardType"/>
+        <association property="sealImg" column="sealImgId" select="com.clt.ess.dao.ISealImgDao.findSealImgById" javaType="sealImg"/>
+
+        <association property="certificate" column="certificateId" select="com.clt.ess.dao.ICertificateDao.findCertificateById" javaType="certificate"/>
+
+        <association property="unit" column="unitId" select="com.clt.ess.dao.IUnitDao.findUnitByUnitId" javaType="unit"/>
+
+        <association property="applyUser" column="applyUserId" select="com.clt.ess.dao.IUserDao.findUserById" javaType="user"/>
+
+        <association property="reviewUser" column="reviewUserId" select="com.clt.ess.dao.IUserDao.findUserById" javaType="user"/>
+
+        <association property="makeUser" column="makeUserId" select="com.clt.ess.dao.IUserDao.findUserById" javaType="user"/>
+
+    </resultMap>
+
+    <insert id="addSealApply"  parameterType="SealApply">
+        INSERT INTO
+        sealapply(sealApplyId,applyType,sealId,sealName,sealImgId,certificateId,unitId,
+        sealTypeId,isUK,cerIssuer,fileTypeNum,keyId,isImageImport,isAuthorizedImport,sealStartTime
+        ,sealEndTime,authorizationTime,authorizationInfo,controlUserId,sealHwUserIdNum,applyUserId,
+        applyTime,reviewUserId,reviewTime,makeUserId,makeTime,applyState,attachment,cardType)
+        VALUES
+        (#{sealApplyId},#{applyType},#{sealId},#{sealName},#{sealImgId},#{certificateId},#{unitId}
+        ,#{sealTypeId},#{isUK},#{cerIssuer},#{fileTypeNum},#{keyId},#{isImageImport},#{isAuthorizedImport},#{sealStartTime},#{sealEndTime}
+        ,#{authorizationTime},#{authorizationInfo},#{controlUserId},#{sealHwUserIdNum},#{applyUserId},#{applyTime},#{reviewUserId},
+        #{reviewTime},#{makeUserId},#{makeTime},#{applyState},#{attachment},#{cardType}
+        )
+    </insert>
+
+    <select id="findSealApply" resultMap="sealApplyMap">
+        SELECT * FROM sealapply
+
+        <where>
+            <if test="sealApplyId != null">
+                sealApplyId = #{sealApplyId}
+            </if>
+            <if test="applyType!=0">
+                AND applyType = #{applyType}
+            </if>
+            <if test="sealId != null">
+                AND sealId = #{sealId}
+            </if>
+            <if test="sealName != null">
+                AND sealName = #{sealName}
+            </if>
+            <if test="sealImgId != null">
+                AND sealImgId = #{sealImgId}
+            </if>
+            <if test="certificateId != null">
+                AND certificateId = #{certificateId}
+            </if>
+            <if test="unitId != null">
+                AND unitId = #{unitId}
+            </if>
+            <if test="isUK!=0">
+                AND isUK = #{isUK}
+            </if>
+            <if test="cerIssuer != null">
+                AND cerIssuer = #{cerIssuer}
+            </if>
+            <if test="fileTypeNum != 0">
+                AND fileTypeNum = #{fileTypeNum}
+            </if>
+            <if test="keyId != null">
+                AND keyId = #{keyId}
+            </if>
+            <if test="isImageImport!=0">
+                AND isImageImport = #{isImageImport}
+            </if>
+            <if test="isAuthorizedImport!=0">
+                AND isAuthorizedImport = #{isAuthorizedImport}
+            </if>
+            <if test="sealStartTime != null">
+                AND sealStartTime = #{sealStartTime}
+            </if>
+            <if test="sealEndTime != null">
+                AND sealEndTime = #{sealEndTime}
+            </if>
+            <if test="authorizationTime != null">
+                AND authorizationTime = #{authorizationTime}
+            </if>
+            <if test="authorizationInfo != null">
+                AND authorizationInfo = #{authorizationInfo}
+            </if>
+            <if test="controlUserId != null">
+                AND controlUserId = #{controlUserId}
+            </if>
+            <if test="sealHwUserIdNum != null">
+                AND sealHwUserIdNum = #{sealHwUserIdNum}
+            </if>
+            <if test="applyUserId != null">
+                AND applyUserId = #{applyUserId}
+            </if>
+            <if test="applyTime != null">
+                AND applyTime = #{applyTime}
+            </if>
+            <if test="reviewUserId != null">
+                AND reviewUserId = #{reviewUserId}
+            </if>
+            <if test="reviewTime != null">
+                AND reviewTime = #{reviewTime}
+            </if>
+            <if test="makeUserId != null">
+                AND makeUserId = #{makeUserId}
+            </if>
+            <if test="makeTime != null">
+                AND makeTime = #{makeTime}
+            </if>
+            <if test="applyState!=0">
+                AND applyState = #{applyState}
+            </if>
+            <if test="attachment!=null">
+                AND attachment = #{attachment}
+            </if>
+        </where>
+        ORDER BY applyTime DESC
+    </select>
+
+
+    <delete id="delSealApply"  parameterType="SealApply">
+        DELETE FROM sealapply
+        <where>
+            <if test="sealApplyId != null">
+                sealApplyId = #{sealApplyId}
+            </if>
+            <if test="applyType!=0">
+                AND applyType = #{applyType}
+            </if>
+            <if test="sealId != null">
+                AND sealId = #{sealId}
+            </if>
+            <if test="sealName != null">
+                AND sealName = #{sealName}
+            </if>
+            <if test="sealImgId != null">
+                AND sealImgId = #{sealImgId}
+            </if>
+            <if test="certificateId != null">
+                AND certificateId = #{certificateId}
+            </if>
+            <if test="unitId != null">
+                AND unitId = #{unitId}
+            </if>
+            <if test="isUK!=0">
+                AND isUK = #{isUK}
+            </if>
+            <if test="cerIssuer != null">
+                AND cerIssuer = #{cerIssuer}
+            </if>
+            <if test="fileTypeNum != 0">
+                AND fileTypeNum = #{fileTypeNum}
+            </if>
+            <if test="keyId != null">
+                AND keyId = #{keyId}
+            </if>
+            <if test="isImageImport!=0">
+                AND isImageImport = #{isImageImport}
+            </if>
+            <if test="isAuthorizedImport!=0">
+                AND isAuthorizedImport = #{isAuthorizedImport}
+            </if>
+            <if test="sealStartTime != null">
+                AND sealStartTime = #{sealStartTime}
+            </if>
+            <if test="sealEndTime != null">
+                AND sealEndTime = #{sealEndTime}
+            </if>
+            <if test="authorizationTime != null">
+                AND authorizationTime = #{authorizationTime}
+            </if>
+            <if test="authorizationInfo != null">
+                AND authorizationInfo = #{authorizationInfo}
+            </if>
+            <if test="controlUserId != null">
+                AND controlUserId = #{controlUserId}
+            </if>
+            <if test="sealHwUserIdNum != null">
+                AND sealHwUserIdNum = #{sealHwUserIdNum}
+            </if>
+            <if test="applyUserId != null">
+                AND applyUserId = #{applyUserId}
+            </if>
+            <if test="applyTime != null">
+                AND applyTime = #{applyTime}
+            </if>
+            <if test="reviewUserId != null">
+                AND reviewUserId = #{reviewUserId}
+            </if>
+            <if test="reviewTime != null">
+                AND reviewTime = #{reviewTime}
+            </if>
+            <if test="makeUserId != null">
+                AND makeUserId = #{makeUserId}
+            </if>
+            <if test="makeTime != null">
+                AND makeTime = #{makeTime}
+            </if>
+            <if test="applyState!=0">
+                AND applyState = #{applyState}
+            </if>
+            <if test="attachment!=null">
+                AND attachment = #{attachment}
+            </if>
+        </where>
+    </delete>
+
+
+    <update id="updateSealApply">
+        UPDATE sealapply
+        <set>
+            <if test="applyType!=0">
+                applyType = #{applyType},
+            </if>
+            <if test="sealId != null">
+                sealId = #{sealId},
+            </if>
+            <if test="sealName != null">
+                sealName = #{sealName},
+            </if>
+            <if test="sealImgId != null">
+                sealImgId = #{sealImgId},
+            </if>
+            <if test="certificateId != null">
+                certificateId = #{certificateId},
+            </if>
+            <if test="unitId != null">
+                 unitId = #{unitId},
+            </if>
+            <if test="isUK!=0">
+                 isUK = #{isUK},
+            </if>
+            <if test="cerIssuer != null">
+                 cerIssuer = #{cerIssuer},
+            </if>
+            <if test="fileTypeNum != 0">
+                fileTypeNum = #{fileTypeNum},
+            </if>
+            <if test="keyId != null">
+                 keyId = #{keyId},
+            </if>
+            <if test="isImageImport!=0">
+                 isImageImport = #{isImageImport},
+            </if>
+            <if test="isAuthorizedImport!=0">
+                 isAuthorizedImport = #{isAuthorizedImport},
+            </if>
+            <if test="sealStartTime != null">
+                 sealStartTime = #{sealStartTime},
+            </if>
+            <if test="sealEndTime != null">
+                 sealEndTime = #{sealEndTime},
+            </if>
+            <if test="authorizationTime != null">
+                 authorizationTime = #{authorizationTime},
+            </if>
+            <if test="authorizationInfo != null">
+                 authorizationInfo = #{authorizationInfo},
+            </if>
+            <if test="controlUserId != null">
+                 controlUserId = #{controlUserId},
+            </if>
+            <if test="sealHwUserIdNum != null">
+                 sealHwUserIdNum = #{sealHwUserIdNum},
+            </if>
+            <if test="applyUserId != null">
+                 applyUserId = #{applyUserId},
+            </if>
+            <if test="applyTime != null">
+                 applyTime = #{applyTime},
+            </if>
+            <if test="reviewUserId != null">
+                 reviewUserId = #{reviewUserId},
+            </if>
+            <if test="reviewTime != null">
+                 reviewTime = #{reviewTime},
+            </if>
+            <if test="makeUserId != null">
+                 makeUserId = #{makeUserId},
+            </if>
+            <if test="makeTime != null">
+                 makeTime = #{makeTime},
+            </if>
+            <if test="applyState!=0">
+                 applyState = #{applyState},
+            </if>
+            <if test="attachment!=null">
+                 attachment = #{attachment}
+            </if>
+        </set>
+        where sealApplyId = #{sealApplyId}
+    </update>
+
+
+    <select id="findSealApplyById" resultMap="sealApplyMap">
+        SELECT * FROM sealapply
+        where sealApplyId = #{sealApplyId}
+    </select>
+</mapper>

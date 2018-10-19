@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clt.ess.dao.ISealImgDao">
+
+    <resultMap type="SealImg" id="sealImgMap">
+        <id property="sealImgId" column="sealImgId"/>
+        <result property="sealImgJpg" column="sealImgJpg"/>
+        <result property="sealImgGifBase64" column="sealImgGifBase64"/>
+        <result property="sealImgClt" column="sealImgClt"/>
+        <result property="sealImgHash" column="sealImgHash"/>
+        <result property="sealThumbnailImgBase64" column="sealThumbnailImgBase64"/>
+        <result property="seaIImageUploadType" column="seaIImageUploadType"/>
+    </resultMap>
+
+    <select id="findSealImgById" resultType="SealImg" >
+        SELECT * FROM sealimg
+        WHERE sealImgId = #{value}
+    </select>
+
+    <insert id="addSealImg"  parameterType="SealImg">
+        INSERT INTO
+        sealimg(sealImgId,sealImgJpg,sealImgGifBase64,sealImgClt,sealImgHash,sealThumbnailImgBase64,seaIImageUploadType)
+        VALUES
+        (#{sealImgId},#{sealImgJpg,jdbcType=BLOB},#{sealImgGifBase64},#{sealImgClt,jdbcType=BLOB}
+        ,#{sealImgHash},#{sealThumbnailImgBase64},#{seaIImageUploadType})
+    </insert>
+
+    <update id="updateSealImg"  parameterType="SealImg">
+        update  sealimg
+        <set>
+            <if test="sealImgJpg != null">
+                sealImgJpg = #{sealImgJpg,jdbcType=BLOB},
+            </if>
+            <if test="sealImgGifBase64 != null">
+                sealImgGifBase64 = #{sealImgGifBase64},
+            </if>
+            <if test="sealImgClt != null">
+                sealImgClt = #{sealImgClt,jdbcType=BLOB},
+            </if>
+            <if test="sealImgHash != null">
+                sealImgHash = #{sealImgHash},
+            </if>
+            <if test="sealThumbnailImgBase64 != null">
+                sealThumbnailImgBase64 = #{sealThumbnailImgBase64},
+            </if>
+            <if test="seaIImageUploadType != null">
+                seaIImageUploadType = #{seaIImageUploadType}
+            </if>
+
+        </set>
+        where sealImgId = #{sealImgId}
+    </update>
+
+
+
+    <delete id="deleteSealImgById"  parameterType="String">
+        DELETE FROM sealimg
+        WHERE sealImgId = #{sealImgId}
+    </delete>
+</mapper>

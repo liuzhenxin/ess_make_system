@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clt.ess.dao.IUnitDao">
+
+    <resultMap type="Unit" id="unitMap">
+        <id property="unitId" column="unitId"/>
+        <result property="unitName" column="unitName"/>
+        <result property="level" column="level"/>
+        <result property="parentUnitId" column="parentUnitId"/>
+        <result property="inputUserId" column="inputUserId"/>
+        <result property="state" column="state"/>
+        <collection property="menus" ofType="unit" column="unitId" select="findUnitByParentUnitId"/>
+    </resultMap>
+
+
+
+    <select id="findUnitByUnitId" parameterType="java.lang.String" resultMap="unitMap">
+        SELECT * FROM unit
+        WHERE unitId = #{value}   AND state = 1
+    </select>
+    <select id="findUnitByParentUnitId" parameterType="java.lang.String" resultMap="unitMap">
+        SELECT * FROM unit
+        WHERE parentUnitId = #{value} AND state = 1
+    </select>
+
+
+
+</mapper>

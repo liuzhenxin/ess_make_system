@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clt.ess.dao.ISystemLogDao">
+
+    <resultMap type="SystemLog" id="systemLogMap">
+        <id property="sysLogId" column="sysLogId"/>
+        <result property="powerName" column="powerName"/>
+        <result property="logDetail" column="logDetail"/>
+        <result property="logTime" column="logTime" jdbcType="TIMESTAMP"  javaType="java.sql.Timestamp" />
+        <result property="userId" column="userId"/>
+        <result property="depId" column="depId"/>
+        <result property="unitId" column="unitId"/>
+        <result property="safeHash" column="safeHash"/>
+        <result property="groupNum" column="groupNum"/>
+    </resultMap>
+
+
+
+    <insert id="addSystemLog"  parameterType="SystemLog">
+        INSERT INTO
+        systemlog(sysLogId,powerName,logDetail,logTime,userId,depId,unitId,
+        safeHash,groupNum)
+        VALUES
+        (#{sysLogId},#{powerName},#{logDetail},#{logTime,jdbcType=TIMESTAMP},#{userId},#{depId},#{unitId}
+        ,#{safeHash},#{groupNum}
+        )
+    </insert>
+
+    <select id="findSystemLogByTimeLimit" resultMap="systemLogMap">
+        <![CDATA[
+        SELECT s1.* FROM systemlog s1 WHERE
+        s1.logTime = (SELECT max(s2.logTime) from systemlog s2 WHERE s2.logTime >= #{value,jdbcType=TIMESTAMP})
+        ]]>
+    </select>
+
+</mapper>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clt.ess.dao.IIssuerUnitDao">
+
+    <resultMap type="IssuerUnit" id="issuerUnitMap">
+        <id property="IssuerUnitId" column="IssuerUnitId"/>
+        <result property="IssuerUnitName" column="IssuerUnitName"/>
+        <result property="IssuerUnitPfx" column="IssuerUnitPfx"/>
+        <result property="IssuerUnitRoot" column="IssuerUnitRoot"/>
+        <result property="PfxPwd" column="PfxPwd"/>
+        <result property="isCreateCer" column="isCreateCer"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <select id="findIssuerUnitValueByUnitId"  resultType="String">
+        SELECT value FROM independentunitconfig
+        where independentUnitId = #{unitId} AND num = 3
+    </select>
+
+    <select id="findIssuerUnitById"  resultMap="issuerUnitMap">
+        SELECT * FROM issuerunit
+        where IssuerUnitId = #{unitId} and state = 1
+    </select>
+</mapper>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx.xsd">
+	<!-- 扫描service包下所有使用注解的类型 -->
+	<context:component-scan base-package="com.clt.ess.service" />
+
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<!-- 注入数据库连接池 -->
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+
+	<!-- 第二种方式是使用注解的方式注入，主要用在java代码中使用注解注入properties文件中相应的value值 -->
+	<bean id="prop" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<!--这里是PropertiesFactoryBean类，它也有个locations属性，也是接收一个数组，跟上面一样-->
+		<property name="locations">
+			<array>
+				<value>classpath:config.properties</value>
+			</array>
+		</property>
+	 </bean>
+
+
+
+	<!-- 配置基于注解的声明式事务 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+</beans>

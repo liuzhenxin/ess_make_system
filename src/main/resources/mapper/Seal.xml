@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clt.ess.dao.ISealDao">
+
+    <resultMap type="Seal" id="sealMap">
+        <id property="sealId" column="sealId"/>
+        <result property="sealName" column="sealName"/>
+        <result property="sealImgId" column="sealImgId"/>
+        <result property="cerId" column="cerId"/>
+        <result property="inputUserId" column="inputUserId"/>
+        <result property="inputTime" column="inputTime"/>
+        <result property="unitId" column="unitId"/>
+        <result property="sealTypeId" column="sealTypeId"/>
+        <result property="sealHwIdNum" column="sealHwIdNum"/>
+        <result property="fileTypeNum" column="fileTypeNum"/>
+        <result property="sealStartTime" column="sealStartTime"/>
+        <result property="sealEndTime" column="sealEndTime"/>
+        <result property="authorizationTime" column="authorizationTime"/>
+        <result property="authorizationInfo" column="authorizationInfo"/>
+        <result property="keyId" column="keyId"/>
+        <result property="isUK" column="isUK"/>
+        <result property="sealState" column="sealState"/>
+        <result property="cardType" column="cardType"/>
+
+        <association property="sealImg" column="sealImgId" select="com.clt.ess.dao.ISealImgDao.findSealImgById" javaType="sealImg"/>
+
+        <association property="certificate" column="cerId" select="com.clt.ess.dao.ICertificateDao.findCertificateById" javaType="certificate"/>
+
+        <association property="unit" column="unitId" select="com.clt.ess.dao.IUnitDao.findUnitByUnitId" javaType="unit"/>
+
+        <association property="inputUser" column="inputUserId" select="com.clt.ess.dao.IUserDao.findUserById" javaType="user"/>
+
+
+    </resultMap>
+
+    <select id="findSealList" resultMap="sealMap">
+        SELECT * FROM seal
+        <where>
+            <if test="sealId != null">
+                sealId = #{sealId}
+            </if>
+            <if test="sealName != null">
+                AND sealName = #{sealName}
+            </if>
+            <if test="sealImgId != null">
+                AND sealImgId = #{sealImgId}
+            </if>
+            <if test="cerId != null">
+                AND cerId = #{cerId}
+            </if>
+            <if test="inputUserId != null">
+                AND inputUserId = #{inputUserId}
+            </if>
+            <if test="inputTime != null">
+                AND inputTime = #{inputTime}
+            </if>
+            <if test="unitId != null">
+                AND unitId = #{unitId}
+            </if>
+            <if test="sealTypeId != null">
+                AND sealTypeId = #{sealTypeId}
+            </if>
+            <if test="sealHwIdNum != null">
+                AND sealHwIdNum = #{sealHwIdNum}
+            </if>
+            <if test="fileTypeNum != 0">
+                AND fileTypeNum = #{fileTypeNum}
+            </if>
+            <if test="sealStartTime != null">
+                AND sealStartTime = #{sealStartTime}
+            </if>
+            <if test="sealEndTime != null">
+                AND sealEndTime = #{sealEndTime}
+            </if>
+            <if test="authorizationTime != null">
+                AND authorizationTime = #{authorizationTime}
+            </if>
+            <if test="authorizationInfo != null">
+                AND authorizationInfo = #{authorizationInfo}
+            </if>
+            <if test="keyId != null">
+                AND keyId = #{keyId}
+            </if>
+            <if test="isUK != 0">
+                AND isUK = #{isUK}
+            </if>
+            <if test="sealState != 0">
+                AND sealState = #{sealState}
+            </if>
+        </where>
+        ORDER BY inputTime DESC
+    </select>
+
+    <select id="findSealType" resultType="SealType">
+        SELECT * FROM sealtype
+        <where>
+            <if test="sealTypeId!= null">
+                sealTypeId = #{sealTypeId}
+            </if>
+            <if test="sealTypeName!= null">
+                AND sealTypeName = #{sealTypeName}
+            </if>
+            <if test="sealTypeNum!= null">
+                AND sealTypeNum = #{sealTypeNum}
+            </if>
+            <if test="topUnitId!= null">
+                AND topUnitId = #{topUnitId}
+            </if>
+        </where>
+    </select>
+
+    <insert id="addSeal"  keyProperty="sealId" parameterType="Seal" >
+        INSERT INTO
+        seal(sealId,sealName,sealImgId,cerId,inputUserId,inputTime,unitId,
+        sealTypeId,sealHwIdNum,fileTypeNum,sealStartTime,sealEndTime,authorizationTime,authorizationInfo,keyId,isUK,sealState,cardType)
+        VALUES
+        (#{sealId},#{sealName},#{sealImgId},#{cerId},#{inputUserId},#{inputTime},
+        #{unitId},#{sealTypeId},#{sealHwIdNum},#{fileTypeNum},#{sealStartTime},#{sealEndTime},#{authorizationTime},#{authorizationInfo},#{keyId},
+        #{isUK},#{sealState},#{cardType})
+    </insert>
+
+
+    <delete id="delSeal"  parameterType="Seal">
+        delete  FROM seal
+        where sealId = #{sealId}
+    </delete>
+
+
+    <!-- 根据剧典id list查询剧典 -->
+    <select id="findSealListByIdNums" resultMap="sealMap">
+        select * from seal where sealHwIdNum in
+        <foreach collection="list" item="sealHwIdNum" open="(" close=")" separator=",">
+            #{sealHwIdNum}
+        </foreach>
+    </select>
+
+    <update id="updateSeal"  parameterType="Seal">
+        update  seal
+        <set>
+            <if test="sealName != null">
+                sealName = #{sealName},
+            </if>
+            <if test="sealImgId != null">
+                sealImgId = #{sealImgId},
+            </if>
+            <if test="cerId != null">
+                cerId = #{cerId},
+            </if>
+            <if test="inputUserId != null">
+                inputUserId = #{inputUserId},
+            </if>
+            <if test="inputTime != null">
+                inputTime = #{inputTime},
+            </if>
+            <if test="unitId != null">
+                unitId = #{unitId},
+            </if>
+            <if test="sealTypeId != null">
+                sealTypeId = #{sealTypeId},
+            </if>
+            <if test="sealHwIdNum != null">
+                sealHwIdNum = #{sealHwIdNum},
+            </if>
+            <if test="fileTypeNum != 0">
+                fileTypeNum = #{fileTypeNum},
+            </if>
+            <if test="sealStartTime != null">
+                sealStartTime = #{sealStartTime},
+            </if>
+            <if test="sealEndTime != null">
+                sealEndTime = #{sealEndTime},
+            </if>
+            <if test="authorizationTime != null">
+                authorizationTime = #{authorizationTime},
+            </if>
+            <if test="authorizationInfo != null">
+                authorizationInfo = #{authorizationInfo},
+            </if>
+            <if test="keyId != null">
+                keyId = #{keyId},
+            </if>
+            <if test="isUK != 0">
+                isUK = #{isUK},
+            </if>
+            <if test="sealState != 0">
+                sealState = #{sealState}
+            </if>
+            <if test="cardType != null">
+                cardType = #{cardType}
+            </if>
+        </set>
+        where sealId = #{sealId}
+    </update>
+
+    <select id="findSealById" resultMap="sealMap">
+        select * from seal where sealId  = #{sealId}
+    </select>
+    <select id="findSealCountByUnitId" resultType="int">
+        select  COUNT(*) from seal where unitId  = #{unitId} AND sealState !=2  group  by sealId
+    </select>
+
+</mapper>

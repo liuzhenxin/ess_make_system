@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="renderer" content="webkit">
+    <title></title>
+    <script src="../../../js/jquery-3.2.1.min.js"></script>
+    <script src="../../../js/pintuer.js"></script>
+    <script src="../../../js/my.js"></script>
+
+    <link rel="stylesheet" href="../../../css/pintuer.css">
+    <link rel="stylesheet" href="../../../css/admin.css">
+
+    <link rel="stylesheet" href="../../../css/mask.css">
+
+    <link rel="stylesheet" href="../../../jquery-dialogbox/jquery.dialogbox-1.0.css">
+    <script src="../../../jquery-dialogbox/jquery.dialogbox-1.0.js"></script>
+
+    <!--三级联动-->
+    <script src="../../../distpicker/js/distpicker.data.js"></script>
+    <script src="../../../distpicker/js/distpicker.js"></script>
+    <script src="../../../distpicker/js/main.js"></script>
+
+    <style type="text/css">
+        .w300{
+            width: 300px;
+            float:left;
+        }
+        .w100{
+            width: 100px;
+            float:left;
+        }
+        .w150{
+            width: 150px;
+            float:left;
+        }
+        .form-x .form-group .label {
+            width: 170px;
+        }
+        .form-x .form-group .field {
+            width: calc(100% - 170px);
+        }
+    </style>
+</head>
+    <body>
+        <div class="panel admin-panel">
+
+            <div class="panel-head"><strong class="icon-reorder"> ESS签章制作系统--申请新印章</strong> <a href="" style="float:right; display:none;">添加字段</a></div>
+            <div class="padding border-bottom form-x" >
+                <ul class="search" style="padding-left:10px;">
+                    <li><a class="button border-main icon-plus-square-o" href="javaScript:window.location.href = document.referrer;"> 返回</a></li>
+                </ul>
+            </div>
+            <div class="body-content form-x">
+                <ul class="search"  >
+                    <li class="label">
+                        <strong class="icon-reorder">印章信息</strong>
+                    </li>
+                    <li>申请UK印章
+                        <select name="s_ishome"  onchange="changesearch()" style="width:60px; line-height:17px; display:inline-block">
+                            <option value="1">是</option>
+                            <option value="0">否</option>
+                        </select>
+                        &nbsp;&nbsp;
+                        印章类型
+                        <select name="s_isvouch" onchange="changesearch()"  style="width:60px; line-height:17px;display:inline-block">
+                            <option value="1">是</option>
+                            <option value="0">否</option>
+                        </select>
+                        &nbsp;&nbsp;
+                    </li>
+                    <li style="display: inline">
+                        <input type="text" placeholder="请输入搜索关键字" id="keywords" name="keywords" style="width:150px; line-height:20px;display:inline-block" />
+                        <a href="javascript:void(0)" class="icon-search" onclick="searchPerson()"> 搜索</a>
+                    </li>
+                </ul>
+                <ul class="search" >
+                    <li class="form-group" id="pId">
+                        <div class="label">
+                            <label>手签标识：</label>
+                        </div>
+                        <div class="field">
+                            <input type="text"  class="input w300" name="title" value="" readonly />
+                        </div>
+                    </li>
+                    <li class="form-group">
+                        <div class="label">
+                            <label>印章名称：</label>
+                        </div>
+                        <div class="field">
+                            <input type="text"  class="input w300" name="title" value="" data-validate="required:请输入标题" />
+                        </div>
+                    </li>
+                    <li class="form-group">
+                        <div class="label">
+                            <label>授权种类：</label>
+                        </div>
+                        <div class="field">
+                            <input type="text"  class="input w300" name="title" value="" data-validate="required:请输入标题" />
+                        </div>
+                    </li>
+                    <li class="form-group">
+                        <div class="label">
+                            <label>附件</label>
+                        </div>
+                        <div class="field">
+                            <input type="text"  class="input w150" name="title" value="" readonly/>
+                            <button type="button" class="button border-blue w150" onclick="sealInfoSubmit()"> 上传附件</button>
+                        </div>
+                    </li>
+                </ul>
+                <ul class="search"  >
+                    <li class="label">
+                        <strong class="icon-reorder">证书信息</strong>
+                    </li>
+                    <li class="form-group">
+                        使用外部证书
+                        <select name="s_isvouch" onchange="changesearch()"  style="width:60px; line-height:17px;display:inline-block">
+                            <option value="1">是</option>
+                            <option value="0">否</option>
+                        </select>
+                        &nbsp;&nbsp;
+                    </li>
+                </ul>
+
+                <ul class="search"  data-toggle="distpicker">
+                    <li class="form-group" >
+                        <div class="label">
+                            <label>所在国家：</label>
+                        </div>
+                        <div class="field">
+                            <input ti e="text"  class="input w300" name="title" value="中国" readonly/>
+                        </div>
+                    </li>
+                    <li class="form-group" >
+                        <div class="label">
+                            <label>所在省份：</label>
+                        </div>
+                        <div class="field">
+                            <select class="form-control input w300" id="province7" name="province" ></select>
+                        </div>
+                    </li>
+                    <li class="form-group">
+                        <div class="label">
+                            <label>所在城市：</label>
+                        </div>
+                        <div class="field">
+                            <select class="form-control input w300" id="city7" name="city" ></select>
+                        </div>
+                    </li>
+                    <li class="form-group">
+                        <div class="label">
+                            <label>单位名称：</label>
+                        </div>
+                        <div class="field">
+                            <input type="text"  class="input w300" name="title" value="" data-validate="required:请输入标题" />
+                        </div>
+                    </li>
+                    <li class="form-group">
+                        <div class="label">
+                            <label>部门名称：</label>
+                        </div>
+                        <div class="field">
+                            <input type="text"  class="input w300" name="title" value="" data-validate="required:请输入标题" />
+                        </div>
+                    </li>
+                    <li class="form-group">
+                        <div class="label">
+                            <label>公用名称：</label>
+                        </div>
+                        <div class="field">
+                            <input type="text"  class="input w300" name="title" value="" data-validate="required:请输入标题" />
+                        </div>
+                    </li>
+                    <li class="form-group">
+                        <div class="label">
+                            <label>证书</label>
+                        </div>
+                        <div class="field">
+                            <input type="text"  class="input w150" name="title" value="" readonly/>
+                            <button type="button" class="button border-blue w150" onclick="sealInfoSubmit()"> 上传证书</button>
+                        </div>
+                    </li>
+                    <li class="form-group">
+                        <div class="label">
+                            <label>软证书密码：</label>
+                        </div>
+                        <div class="field">
+                            <input type="text"  class="input w300" id="demo" name="demo" value="demo" data-validate="required:请输入密码" />
+                        </div>
+                    </li>
+                </ul>
+                <ul class="search" >
+                    <li class="form-group">
+                        <div class="label">
+                            <label></label>
+                        </div>
+                        <div class="field">
+                            <button type="button" class="button bg-main icon-check-square-o" onclick="sealInfoSubmit()"> 提交申请</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </body>
+<script>
+    function submitApplyInfo() {
+
+    }
+
+    function searchPerson() {
+        var obj = '{"name":"wisdo", "age":"20"}';
+        var data = eval('('+ obj +')');
+        alert(data.name);
+        // alert($("#keywords").val());
+        // $.ajax({
+        //     url: "http://192.168.1.112:8081/ess_make_system/apply/findPerson.html",
+        //     type: "get",
+        //     data: {phone:$("#keywords").val()},
+        //     dateType: "json",
+        //     success: function (data) {
+        //         alert(data);
+        //         $('body').dialogbox({
+        //             type:"normal",title:"人员搜索",
+        //             buttons:[{
+        //                 Text:"确认",
+        //                 ClickToClose:true,
+        //                 callback:function (dialog){
+        //                     var id1 = $(dialog).find("#demo").val();
+        //
+        //                     alert(id1);
+        //                 }
+        //             }],
+        //             message:"<input type=\"text\"  class=\"input w300\" id=\"demo\" name=\"demo\" value=\"demo\" data-validate=\"required:请输入密码\" />"
+        //         });
+        //     },
+        //     error: function (data) {
+        //         alert("请求错误！")
+        //     }
+        // });
+
+
+    }
+</script>
+</html>

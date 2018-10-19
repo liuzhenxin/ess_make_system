@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clt.ess.dao.IIndependentUnitConfigDao">
+    <resultMap type="IndependentUnitConfig" id="independentUnitConfigMap">
+        <id property="independentUnitId" column="independentUnitId"/>
+        <result property="num" column="num"/>
+        <result property="value" column="value"/>
+    </resultMap>
+    <select id="findFileTypeConfigByUnitId"  resultType="String">
+        SELECT value FROM independentUnitConfig
+        WHERE independentUnitId = #{independentUnitId} AND num = #{num}
+    </select>
+</mapper>

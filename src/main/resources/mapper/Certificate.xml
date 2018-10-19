@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clt.ess.dao.ICertificateDao">
+
+    <resultMap type="Certificate" id="certificateMap">
+        <id property="certificateId" column="certificateId"/>
+        <result property="cerName" column="cerName"/>
+        <result property="algorithm" column="algorithm"/>
+        <result property="cerClass" column="cerClass"/>
+        <result property="issuer" column="issuer"/>
+        <result property="issuerUnitId" column="issuerUnitId"/>
+        <result property="country" column="country"/>
+        <result property="certificateVersion" column="certificateVersion"/>
+        <result property="province" column="province"/>
+        <result property="city" column="city"/>
+        <result property="certUnit" column="certUnit"/>
+        <result property="certDepartment" column="certDepartment"/>
+        <result property="cerBase64" column="cerBase64"/>
+        <result property="pfxBase64" column="pfxBase64"/>
+        <result property="startTime" column="startTime"/>
+        <result property="endTime" column="endTime"/>
+        <result property="ApplyTime" column="ApplyTime"/>
+        <result property="cerPsw" column="cerPsw"/>
+        <result property="fileState" column="fileState"/>
+        <result property="state" column="state"/>
+
+        <association property="issuerUnit" column="IssuerUnitId" select="com.clt.ess.dao.IIssuerUnitDao.findIssuerUnitById" javaType="issuerUnit"/>
+    </resultMap>
+
+    <insert id="addCertificate"  parameterType="Certificate" >
+        INSERT INTO
+        certificate(certificateId,cerName,algorithm,cerClass,issuer,issuerUnitId,country,certificateVersion,province,city,certUnit,
+        certDepartment,cerBase64,pfxBase64,startTime,endTime,ApplyTime,cerPsw,fileState,state)
+        values
+        (#{certificateId},#{cerName},#{algorithm},#{cerClass},#{issuer},#{issuerUnitId},#{country},#{certificateVersion},#{province},#{city},#{certUnit},
+        #{certDepartment},#{cerBase64},#{pfxBase64},#{startTime},#{endTime},#{ApplyTime},#{cerPsw},#{fileState},#{state})
+    </insert>
+
+    <select id="findCertificateById" parameterType="java.lang.String" resultMap="certificateMap">
+        SELECT * FROM certificate
+        WHERE certificateId = #{value}
+    </select>
+
+
+    <select id="findCertificate" resultMap="certificateMap">
+        SELECT * FROM certificate
+        <where>
+            state = #{state}
+            <if test="certificateId!= null">
+                AND certificateId = #{certificateId}
+            </if>
+        </where>
+    </select>
+
+
+    <update id="updateCertificate">
+        UPDATE certificate
+        <set>
+            <if test="cerName != null">
+                cerName = #{cerName},
+            </if>
+            <if test="algorithm != null">
+                algorithm = #{algorithm},
+            </if>
+            <if test="cerClass != null">
+                cerClass = #{cerClass},
+            </if>
+            <if test="issuer != null">
+                issuer = #{issuer},
+            </if>
+            <if test="issuerUnitId != null">
+                issuerUnitId = #{issuerUnitId},
+            </if>
+            <if test="country != null">
+                country = #{country},
+            </if>
+            <if test="certificateVersion != null">
+                certificateVersion = #{certificateVersion},
+            </if>
+            <if test="province != null">
+                province = #{province},
+            </if>
+            <if test="city != null">
+                city = #{city},
+            </if>
+            <if test="certUnit != null">
+                certUnit = #{certUnit},
+            </if>
+            <if test="certDepartment != null">
+                certDepartment = #{certDepartment},
+            </if>
+            <if test="cerBase64 != null">
+                cerBase64 = #{cerBase64},
+            </if>
+            <if test="pfxBase64 != null">
+                pfxBase64 = #{pfxBase64},
+            </if>
+            <if test="startTime != null">
+                startTime = #{startTime},
+            </if>
+            <if test="endTime != null">
+                endTime = #{endTime},
+            </if>
+            <if test="ApplyTime != null">
+                ApplyTime = #{ApplyTime},
+            </if>
+            <if test="cerPsw != null">
+                cerPsw = #{cerPsw},
+            </if>
+            <if test="fileState != 0">
+                fileState = #{fileState},
+            </if>
+            <if test="state != 0">
+                state = #{state}
+            </if>
+        </set>
+        where certificateId = #{certificateId}
+    </update>
+
+</mapper>

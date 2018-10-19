@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clt.ess.dao.IUserDao">
+
+    <resultMap type="User" id="userMap">
+        <id property="userId" column="userId"/>
+        <result property="depId" column="depId"/>
+        <result property="unitId" column="unitId"/>
+        <result property="powerRange" column="powerRange"/>
+        <result property="roleId" column="roleId"/>
+        <result property="inputUserId" column="inputUserId"/>
+        <result property="level" column="level"/>
+        <result property="personId" column="personId"/>
+        <result property="isActive" column="isActive"/>
+        <result property="state" column="state"/>
+        <association property="person" column="personId" select="com.clt.ess.dao.IPersonDao.findPersonById"/>
+        <association property="unit" column="unitId" select="com.clt.ess.dao.IUnitDao.findUnitByUnitId" javaType="unit"/>
+    </resultMap>
+
+    <select id="findUserById" resultMap="userMap">
+        SELECT * FROM user
+        WHERE userId = #{userId}
+    </select>
+
+    <insert id="addUser" parameterType="User">
+        INSERT INTO
+        user(userId,depId,unitId,powerRange,roleId,inputUserId,level,personId,isActive,state)
+        VALUES
+        (#{userId},#{depId},#{unitId},#{powerRange},#{roleId},#{inputUserId},#{level},#{personId},#{isActive},#{state})
+    </insert>
+
+    <select id="findUserList"  resultMap="userMap">
+        SELECT * FROM user
+        <where>
+              state = #{state}
+            <if test="userId != null">
+                AND userId = #{userId}
+            </if>
+            <if test="depId != null">
+                AND depId = #{depId}
+            </if>
+            <if test="unitId != null">
+                AND unitId = #{unitId}
+            </if>
+            <if test="powerRange!=0">
+                AND powerRange = #{powerRange}
+            </if>
+            <if test="roleId != null">
+                AND roleId = #{roleId}
+            </if>
+            <if test="inputUserId != null">
+                AND inputUserId = #{inputUserId}
+            </if>
+            <if test="level!=0">
+                AND level = #{level}
+            </if>
+            <if test="personId != null">
+                AND personId = #{personId}
+            </if>
+            <if test="isActive!=0">
+                AND isActive = #{isActive}
+            </if>
+        </where>
+    </select>
+    <select id="findLoginUserByPersonId" resultMap="userMap">
+        select * from user
+        <where>
+            <if test="userId != null">
+                 userId = #{userId}
+            </if>
+            <if test="personId != null">
+                AND personId = #{personId}
+            </if>
+            and state = 1
+            and  (roleId like CONCAT('%','auditor','%')
+            or roleId like CONCAT('%','producer','%'))
+        </where>
+    </select>
+
+</mapper>

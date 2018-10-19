@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clt.ess.dao.ISysVerifyDao">
+
+    <resultMap type="SysVerify" id="sysVerifyMap">
+        <id property="independentId" column="independentId"/>
+        <result property="unitName" column="unitName"/>
+        <result property="serverIp" column="serverIp"/>
+        <result property="ukSealJurSize" column="ukSealJurSize"/>
+        <result property="mobileSealJurSize" column="mobileSealJurSize"/>
+        <result property="ukHwJurSize" column="ukHwJurSize"/>
+        <result property="mobileHwJurSize" column="mobileHwJurSize"/>
+        <result property="jurProductCode" column="jurProductCode"/>
+        <result property="dueTime" column="dueTime"/>
+        <result property="signValue" column="signValue"/>
+        <result property="verifyResult" column="verifyResult"/>
+    </resultMap>
+
+    <select id="findSysVerifyById" resultMap="sysVerifyMap">
+        SELECT * FROM sysVerify
+        WHERE independentId = #{independentId}
+    </select>
+
+
+    <update id="updateVerifyResultByIndepdId"  parameterType="SysVerify">
+        update  sysVerify
+        <set>
+            <if test="unitName != null">
+                unitName = #{unitName},
+            </if>
+            <if test="serverIp != null">
+                serverIp = #{serverIp},
+            </if>
+            <if test="jurProductCode != null">
+                jurProductCode = #{jurProductCode},
+            </if>
+            <if test="dueTime != null">
+                dueTime = #{dueTime},
+            </if>
+            <if test="signValue != null">
+                signValue = #{signValue},
+            </if>
+            <if test="verifyResult != null">
+                verifyResult = #{verifyResult}
+            </if>
+        </set>
+        where independentId = #{independentId}
+    </update>
+
+</mapper>

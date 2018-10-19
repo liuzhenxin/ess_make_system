@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clt.ess.dao.IUnitRoleAndPowerRelationDao">
+
+    <resultMap type="UnitRoleAndPowerRelation" id="unitRoleAndPowerRelationMap">
+        <id property="roleAndPowerRelationId" column="roleAndPowerRelationId"/>
+        <result property="topUnitId" column="topUnitId"/>
+        <result property="roleId" column="roleId"/>
+        <result property="powerId" column="powerId"/>
+    </resultMap>
+
+    <select id="findUnitRoleAndPowerRelation" resultMap="unitRoleAndPowerRelationMap">
+        SELECT * FROM unitroleandpowerrelation
+        <where>
+            <if test="roleAndPowerRelationId!= 0">
+                roleAndPowerRelationId = #{roleAndPowerRelationId}
+            </if>
+            <if test="topUnitId!= null">
+                AND topUnitId = #{topUnitId}
+            </if>
+            <if test="roleId!= null">
+                AND roleId = #{roleId}
+            </if>
+            <if test="powerId!= null">
+                AND powerId = #{powerId}
+            </if>
+        </where>
+    </select>
+
+
+</mapper>
