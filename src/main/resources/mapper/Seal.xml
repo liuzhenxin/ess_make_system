@@ -184,7 +184,7 @@
                 isUK = #{isUK},
             </if>
             <if test="sealState != 0">
-                sealState = #{sealState}
+                sealState = #{sealState},
             </if>
             <if test="cardType != null">
                 cardType = #{cardType}

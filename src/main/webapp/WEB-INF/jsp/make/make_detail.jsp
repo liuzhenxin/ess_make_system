@@ -398,39 +398,64 @@
     }
 
     function sealInfoSubmit(){
-        $('body').dialogbox({
-            type:"normal",title:"确认您提交的信息",
-            buttons:[{
-                Text:"确认制作",
-                ClickToClose:true,
-                callback:function (dialog){
-                    var formData = new FormData();
-                    var id = $('#cerIssuer').val();
-                    formData.append('sealApplyId', $('#sealApplyId').val());
-                    formData.append('gifImg', $('#gifImg')[0].files[0]);
-                    formData.append('jpgImg', $('#jpgImg')[0].files[0]);
-                    formData.append('country', $('#country').val());
-                    formData.append('province', $('#province').val());
-                    formData.append('city', $('#city').val());
-                    formData.append('certUnit', $('#certUnit').val());
-                    formData.append('certDepartment', $('#certDepartment').val());
-                    formData.append('cerName', $('#cerName').val());
-                    formData.append('startTime', $('#startTime').val());
-                    formData.append('endTime', $('#endTime').val());
-                    formData.append('cerIssuer', $('#cerIssuer').val());
-                    formData.append('cardType', $('#cardType').val());
-                    $.ajax({
-                        url: "${pageContext.request.contextPath}/make/make_new_do.html",
-                        type: "post",
-                        data: formData,
-                        cache: false,
-                        processData: false,
-                        contentType: false,
-                        success: function (data) {
-                            var obj = eval('('+ data +')');
-                            if(obj.message=="success"){
-                                if($("#isUK").text()=="是"){
-                                    CreateNewCert(obj.body.sealImgId);
+        if( isNull($("#gifImg").val()) && isNull($("#jpgImg").val())){
+            $('body').dialogbox({
+                type:"normal",title:"系统提示",
+                buttons:[{
+                    Text:"确认",
+                    ClickToClose:true,
+                    callback:function (dialog){
+                    }
+                }],
+                message:"请上传印章图片！"
+            });
+        }else{
+            $('body').dialogbox({
+                type:"normal",title:"确认您提交的信息",
+                buttons:[{
+                    Text:"确认制作",
+                    ClickToClose:true,
+                    callback:function (dialog){
+                        var formData = new FormData();
+                        var id = $('#cerIssuer').val();
+                        formData.append('sealApplyId', $('#sealApplyId').val());
+                        formData.append('gifImg', $('#gifImg')[0].files[0]);
+                        formData.append('jpgImg', $('#jpgImg')[0].files[0]);
+                        formData.append('country', $('#country').val());
+                        formData.append('province', $('#province').val());
+                        formData.append('city', $('#city').val());
+                        formData.append('certUnit', $('#certUnit').val());
+                        formData.append('certDepartment', $('#certDepartment').val());
+                        formData.append('cerName', $('#cerName').val());
+                        formData.append('startTime', $('#startTime').val());
+                        formData.append('endTime', $('#endTime').val());
+                        formData.append('cerIssuer', $('#cerIssuer').val());
+                        formData.append('cardType', $('#cardType').val());
+                        $.ajax({
+                            url: "${pageContext.request.contextPath}/make/make_new_do.html",
+                            type: "post",
+                            data: formData,
+                            cache: false,
+                            processData: false,
+                            contentType: false,
+                            success: function (data) {
+                                var obj = eval('('+ data +')');
+                                if(obj.message=="success"){
+                                    if($("#isUK").text()=="是"){
+                                        CreateNewCert(obj.body.sealImgId);
+                                    }else{
+                                        $('body').dialogbox({
+                                            type:"normal",title:"系统提示",
+                                            buttons:[{
+                                                Text:"确认",
+                                                ClickToClose:true,
+                                                callback:function (dialog){
+                                                    window.location.href = document.referrer;
+                                                }
+                                            }],
+                                            message:"印章制作成功！"
+                                        });
+                                    }
                                 }else{
                                     $('body').dialogbox({
                                         type:"normal",title:"系统提示",
@@ -438,53 +463,42 @@
                                             Text:"确认",
                                             ClickToClose:true,
                                             callback:function (dialog){
-                                                window.location.href = document.referrer;
                                             }
                                         }],
-                                        message:"印章制作成功！"
+                                        message:"服务器数据处理发生错误！请检查后重试！"
                                     });
                                 }
-                            }else{
+
+                            },
+                            error:function (data) {
                                 $('body').dialogbox({
                                     type:"normal",title:"系统提示",
                                     buttons:[{
                                         Text:"确认",
                                         ClickToClose:true,
                                         callback:function (dialog){
+
                                         }
                                     }],
-                                    message:"服务器数据处理发生错误！请检查后重试！"
+                                    message:'您提交的信息有误！'
                                 });
                             }
-
-                        },
-                        error:function (data) {
-                            $('body').dialogbox({
-                                type:"normal",title:"系统提示",
-                                buttons:[{
-                                    Text:"确认",
-                                    ClickToClose:true,
-                                    callback:function (dialog){
-
-                                    }
-                                }],
-                                message:'您提交的信息有误！'
-                            });
-                        }
-                    });
-                }
-            },
-                {
-                    Text:"返回修改",
-                    ClickToClose:true,
-                    callback:function (dialog){
-                        // nothing
+                        });
                     }
-                }
-            ],
+                },
+                    {
+                        Text:"返回修改",
+                        ClickToClose:true,
+                        callback:function (dialog){
+                            // nothing
+                        }
+                    }
+                ],
 
-            message:getDioMessage()
-        });
+                message:getDioMessage()
+            });
+        }
+
     }
 
     function CreateNewCert(sealImgId){

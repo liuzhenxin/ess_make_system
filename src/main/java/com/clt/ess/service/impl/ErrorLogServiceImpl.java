@@ -27,4 +27,5 @@ public class ErrorLogServiceImpl implements IErrorLogService {
         }
         return false;
     }
+
 }

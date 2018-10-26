@@ -79,7 +79,7 @@
     <div class="ub option m-l-20 m-b-20">
         <div class="field">
             <c:choose>
-                <c:when test="${message.messageType == '1'}">
+                <c:when test="${message.messageType == '1' && message.readState ==2}">
                     <%--<button class="button bg-main icon-check-square-o" onclick="messageMethodType_1('${message.messageNo}')"> 重新申请</button>--%>
                 </c:when>
                 <c:when test="${message.messageType == '2'&& message.readState=='2'}">
@@ -146,7 +146,8 @@
                                 Text:"查看印章",
                                 ClickToClose:true,
                                 callback:function (dialog){
-                                    window.location.href="http://192.168.1.112:8081/ess_make_system/seal/seal_detail.html?sealId="+obj.body.sealId;
+                                    window.location.href="${pageContext.request.contextPath}/seal/seal_detail.html?sealId="+obj.body.sealId;
+                                    // window.location.href="http://192.168.1.112:8081/ess_make_system/seal/seal_detail.html?sealId="+obj.body.sealId;
                                 }
                             }
                         ],
@@ -192,7 +193,7 @@
                                 Text:"查看印章",
                                 ClickToClose:true,
                                 callback:function (dialog){
-                                    window.location.href="http://192.168.1.112:8081/ess_make_system/seal/seal_detail.html?sealId="+obj.body.sealId;
+                                    window.location.href="${pageContext.request.contextPath}/seal/seal_detail.html?sealId="+obj.body.sealId;
                                 }
                             }
                         ],
@@ -271,7 +272,7 @@
                                                 Text:"查看印章",
                                                 ClickToClose:true,
                                                 callback:function (dialog){
-                                                    window.location.href="http://192.168.1.112:8081/ess_make_system/seal/seal_detail.html?sealId="+obj.body.sealId;
+                                                    window.location.href="${pageContext.request.contextPath}/seal/seal_detail.html?sealId="+obj.body.sealId;
                                                 }
                                             }
                                         ],
@@ -307,7 +308,8 @@
                                     Text:"查看印章",
                                     ClickToClose:true,
                                     callback:function (dialog){
-                                        window.location.href="http://192.168.1.112:8081/ess_make_system/seal/seal_detail.html?sealId="+obj.body.sealId;
+
+                                        window.location.href="${pageContext.request.contextPath}/seal/seal_detail.html?sealId="+obj.body.sealId;
                                     }
                                 }
                             ],
@@ -412,7 +414,7 @@
                                         Text:"查看印章",
                                         ClickToClose:true,
                                         callback:function (dialog){
-                                            window.location.href="http://192.168.1.112:8081/ess_make_system/seal/seal_detail.html?sealId="+s[2];
+                                            window.location.href="${pageContext.request.contextPath}/seal/seal_detail.html?sealId="+obj.body.sealId;
                                         }
                                     }],
                                     message:'申请信息已注销！'

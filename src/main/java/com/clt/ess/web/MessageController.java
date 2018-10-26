@@ -94,7 +94,7 @@ public class MessageController {
     }
 
     /**
-     *驳回
+     *申请被驳回
      * @param
      */
     @RequestMapping(value="/messageMethodType_1.html", method = RequestMethod.GET)
@@ -104,13 +104,22 @@ public class MessageController {
 
         Message message = new Message();
 
+        message.setMessageNo(messageNo);
+        message.setState(1);
+        message = messageService.findMessageOnly(message);
+
+
         String applyId = messageService.findMessage(message).get(0).getApplyInfoId();
+
+        message.setReadState(1);
+
+        messageService.updateMessage(message);
 
         return applyId;
 
     }
     /**
-     *驳回
+     *重新申请
      * @param
      */
     @RequestMapping(value="/reSealApply.html", method = RequestMethod.GET)
@@ -148,6 +157,10 @@ public class MessageController {
         seal.setSealState(Constant.SEAL_STATE_VALID);
         sealService.updateSeal(seal);
 
+        message.setReadState(1);
+
+        messageService.updateMessage(message);
+
         messageBeen.setBody(seal);
 
         return new String(FastJsonUtil.toJSONString(messageBeen).getBytes("utf8"),"iso8859-1");
@@ -184,13 +197,16 @@ public class MessageController {
 //        destroyMessage(messageNo);
         Message message = new Message();
         message.setMessageNo(messageNo);
-        message.setState(0);
+        message.setState(1);
         //返回seal信息
         List<Message> messageList = messageService.findMessage(message);
         SealApply sealApply = sealService.findSealApplyById(messageList.get(0).getApplyInfoId());
 
         Seal seal  = sealService.findSealById(sealApply.getSealId());
 
+        message.setReadState(1);
+
+        messageService.updateMessage(message);
         return seal.getSealId();
     }
     /**
@@ -222,9 +238,12 @@ public class MessageController {
 //        seal.setSealState(Constant.SEAL_STATE_VALID);
             sealService.updateSeal(seal);
 
+            message.setReadState(1);
+
+            messageService.updateMessage(message);
+
             messageBeen.setBody(seal);
         }
-
         return new String(FastJsonUtil.toJSONString(messageBeen).getBytes("utf8"),"iso8859-1");
 
     }

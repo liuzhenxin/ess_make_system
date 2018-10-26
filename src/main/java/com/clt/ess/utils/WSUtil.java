@@ -16,7 +16,7 @@ public class WSUtil {
 	private static String URLSTR = "http://192.168.1.113:8888/ESSSafeLoginServer/wsForServer?wsdl";
 	
 	
-	/*
+	/**
 	 * 调用ws,根据人员id获取印章数据
 	 */
 	public static String getSealDataAbtSigner(String essPid,String essPara){

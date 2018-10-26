@@ -147,7 +147,7 @@
             <ul class="search" >
                 <li class="form-group">
                     <div class="label">
-                        <label>印章图片：</label>
+                        <label>附件：</label>
                     </div>
                     <div class="field">
                         <div class="uploader white">

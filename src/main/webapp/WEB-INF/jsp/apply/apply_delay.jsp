@@ -19,7 +19,9 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/jquery-dialogbox/jquery.dialogbox-1.0.css">
     <script src="${pageContext.request.contextPath}/jquery-dialogbox/jquery.dialogbox-1.0.js"></script>
     <style type="text/css">
-
+        .xy {
+            margin-top: 10px;
+        }
         .form-x .form-group .label {
             width: 170px;
         }
@@ -53,7 +55,7 @@
                 <div class="label">
                     <label>印章名称：</label>
                 </div>
-                <div class="field">
+                <div class="field xy" >
                     ${seal.sealName}
                 </div>
             </div>
@@ -61,7 +63,7 @@
                 <div class="label">
                     <label>印章图片：</label>
                 </div>
-                <div class="field">
+                <div class="field xy">
                     <img src="data:image/gif;base64,${seal.sealImg.sealThumbnailImgBase64}" width="70" height="70"/>
                 </div>
             </div>
@@ -69,7 +71,7 @@
                 <div class="label">
                     <label>授权起始时间：</label>
                 </div>
-                <div class="field">
+                <div class="field xy">
                     <input type="date" id="sealStartTime" name="sealStartTime"  value="${seal.sealStartTime}"/>
                     <div class="tips"></div>
                 </div>
@@ -79,7 +81,7 @@
                 <div class="label">
                     <label>授权到期时间：</label>
                 </div>
-                <div class="field">
+                <div class="field xy">
                     <input type="date" id="sealEndTime" name="sealEndTime"  value="${seal.sealEndTime}"/>
                     <div class="tips"></div>
                 </div>
@@ -88,7 +90,7 @@
                 <div class="label">
                     <label></label>
                 </div>
-                <div class="field">
+                <div class="field xy">
                     <button type="button" class="button bg-main icon-check-square-o" onclick="sealInfoSubmit()"> 延期申请</button>
                 </div>
             </div>

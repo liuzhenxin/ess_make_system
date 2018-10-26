@@ -63,9 +63,9 @@
     <update id="updateMessage"  parameterType="message">
         update  message
         <set>
-            state = #{state}
+            state = #{state},
             <if test="readState != 0">
-                AND readState = #{readState}
+                 readState = #{readState}
             </if>
         </set>
         where messageNo = #{messageNo}

@@ -283,8 +283,6 @@
 		<!--</div>-->
 	</div>
 
-
-
 <script type="text/javascript">
 
 	$(function setIframeHeight() {
@@ -294,9 +292,6 @@
 		//iframe.height="calc(100% - 30px)";
 
 	});
-
-
-
 	// 根据当前登陆用户的personId和用户选择的unitId刷新本页
 	function toOtherUnitBySelectUnitId(){
 		var selectUnitId = $("#otherUnit").val();
@@ -304,7 +299,6 @@
 			window.location.href="${pageContext.request.contextPath}/unit/toUnitAndDepAndUserManagerPage?unitId="+selectUnitId+"";
 		}
 	}
-
 
 	//点击节点，在右侧的主frame中显示
 	function onclickNode(unitId){
@@ -324,26 +318,23 @@
 		var unitSize = $("#unitSize").val();
 
 		if(unitSize == 1){
-
 			$("[name='otherUnit']").hide();
 			$("[name='otherUnitBut']").hide();
-
 		}
-
 		// ZTreede的初始化
 		var zNodes = ${unit_menu};
 		$.fn.zTree.init($("#treeDemo"), setting, zNodes);
 
-
 		$(".leftnav h2").click(function(){
-		  $(this).next().slideToggle(200);
-		  $(this).toggleClass("on");
-	  })
-	  $(".leftnav ul li a").click(function(){
+			$(this).next().slideToggle(200);
+			$(this).toggleClass("on");
+	  	});
+
+		$(".leftnav ul li a").click(function(){
 			$("#a_leader_txt").text($(this).text());
 			$(".leftnav ul li a").removeClass("on");
 			$(this).addClass("on");
-	  })
+		})
 
 		var toOpeUnitId = $("#toOpeUnitId").val();
 		//alert(toOpeUnitId == "");
@@ -353,14 +344,10 @@
 
 	});
 
-
-
-
 	//点击消息中心，在右侧的主frame中显示
 	function toMessage(){
 		window.right.location.href="${pageContext.request.contextPath}/message/message_list.html";
 	}
-
 
 	// 调用验证方法获取相应参数
 	function toAuth(url){
@@ -433,7 +420,7 @@
     //跳转到制章系统的界面
     function toSealMakePasgeByUserId(){
 
-		var userId =  $("#sealType").val();
+		var userId =  $("#otherUnit").val();
         // 校验是否有跳转到单位、部门、用户管理界面的权限
         $.post(
             "${pageContext.request.contextPath}/check_auth.html",

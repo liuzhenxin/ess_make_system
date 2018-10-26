@@ -7,16 +7,16 @@ import com.clt.ess.entity.*;
 import com.clt.ess.service.*;
 import com.clt.ess.utils.FastJsonUtil;
 import com.clt.ess.utils.PowerUtil;
-import com.clt.ess.utils.WSUtil;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.clt.ess.utils.WSUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.List;
 
 import static com.clt.ess.utils.CertUtils.signCertByIssuerUnit;
-import static com.clt.ess.utils.WSUtil.getLoginUserInfo;
 import static com.clt.ess.utils.dateUtil.strToDate;
 import static com.multica.crypt.MuticaCrypt.ESSGetBase64Encode;
 
@@ -72,72 +71,100 @@ public class MainController {
         this.response = response;
         this.session = request.getSession();
     }
+
     /**
-     * 系统入口
-     * @param model
-     * @return
+     * 制章系统入口
+     * @param token 验证口令 网页访问PC客户端得到的令牌
+     * @param userId 登录人ID可为空 在personId拥有多个登录身份时，在页面内切换身份时userId不为空
+     * @return 视图信息
      */
     @RequestMapping(value = "/index.html", method = RequestMethod.GET)
-    private String index(Model model,String token,String userId)  {
+    private ModelAndView index(String token,String userId)  {
+
+        //视图对象
+        ModelAndView modelAndView = new ModelAndView();
+        //设置返回视图
+        modelAndView.setViewName("unitAndDepAndUserManager");
+//        //授权信息
 //        String authMsg = null;
-//        try{
-//            authMsg = WSUtil.getLoginUserInfo(token);
-//        }catch (MalformedURLException e){
-//            errorLogService.addErrorLog("MainController-index-webservice获取登录人信息出错");
-//        }
 //
-//        if(authMsg == null || !authMsg.contains("ESSYES") || !authMsg.contains("ESSEND")){
-//            model.addAttribute("message", "获取人员信息出错");
-//            return "error";
+//        try{
+//            //通过webservice,根据token获取授权信息
+//            authMsg = WSUtil.getLoginUserInfo(token);
+//
+//        }catch (MalformedURLException e){
+//            //抓取异常 记录错误日志
+//            errorLogService.addErrorLog("MainController-index-webservice获取登录人授权信息出错！");
+//            modelAndView.setViewName("error");
 //        }
+//        //判断授权信息 判断是否为空，完整性
+//        if(authMsg == null || !authMsg.contains("ESSYES") || !authMsg.contains("ESSEND")){
+//            errorLogService.addErrorLog("MainController-index-authMsg授权信息为空或者不完整！");
+//            model.addAttribute("message", "获取人员信息出错");
+//            modelAndView.setViewName("error");
+//        }
+//        //解析授权信息 根据 @@@@ 分割字符串
 //        String[] split = authMsg.split("@@@@");
 //        if(split.length == 0){
-//            model.addAttribute("message", "获取人员信息出错");
-//            return "error";
+//            errorLogService.addErrorLog("MainController-index-authMsg授权信息出错！");
+//            modelAndView.setViewName("error");
 //        }
+//        //获取到登录人的personId
 //        String personId = split[0].substring(6);
-
+        //根据personId查找用户表
         User user = new User();
         user.setPersonId(token);
+        //状态有效的登录身份
         user.setState(Constant.STATE_YES);
-
+        //查找符合条件的用户
         List<User> userList =  userService.findLoginUserByPersonId(user);
 
         if(userList.size()!=0 ){
-            //是本系统管理员进入首页
+            //判断访问参数userId是否为空
             if("".equals(userId)||userId==null){
+                //userId为空时 是 第一次访问。
+                //此时自动分配第一个用户身份
                 user = userList.get(0);
             }else{
+                //userId不为空时，为拥有多个身份的用户切换时
+                //根据其身份列表选出其切换的身份。
                 for(User nav :userList){
                     if(nav.getUserId()==userId){
                         user = nav;
                     }
                 }
             }
+            //将用户身份存入session，作为登录信息。
             session.setAttribute("user",user);
-            model.addAttribute("user", user);
-            model.addAttribute("userList", userList);
+            modelAndView.addObject("user", user);
+            modelAndView.addObject("userList", userList);
+
+            //根据当前登录用户获取其单位列表结构
             List<ZTree> tree =  unitService.queryUnitMenu(user.getUnitId());
-            model.addAttribute("unit_menu", FastJsonUtil.toJSONString(tree));
-            //放入当前单位名称chain，先清除。此处放入单位名称chain是为了写入系统日志是方便取用
-            session.removeAttribute("unitNameChain");
-            session.setAttribute("unitNameChain", unitService.getUnitNameChain(user.getUnitId()));
+            if(tree==null){
+                errorLogService.addErrorLog("MainController-index-unitNameChain获取单位列表结构出错！");
+                modelAndView.setViewName("error");
+            }else{
+                modelAndView.addObject("unit_menu", FastJsonUtil.toJSONString(tree));
+            }
+            //单位名称chain
+            String unitNameChain = unitService.getUnitNameChain(user.getUnitId());
+            if("".equals(unitNameChain)||unitNameChain==null){
+                errorLogService.addErrorLog("MainController-index-unitNameChain获取单位名称链出错！");
+                modelAndView.setViewName("error");
+            }else{
+                //放入当前单位名称chain，先清除。此处放入单位名称chain是为了写入系统日志是方便取用
+                session.removeAttribute("unitNameChain");
+                session.setAttribute("unitNameChain", unitNameChain);
+            }
+
         }else{
-            model.addAttribute("message", "用户不存在");
-            return "error";
+            errorLogService.addErrorLog("MainController-index-userList根据personId查询的user为空！");
+            modelAndView.setViewName("error");
         }
-        return "unitAndDepAndUserManager";
+        return modelAndView;
     }
-    /**
-     * 如果有多个单位，选择单位时刷新新页面（可以理解为重新登录）
-     * @param userId
-     */
-    @RequestMapping(value="/index_update.html", method = RequestMethod.GET)
-    public String index_update(Model model,String userId) {
-        List<ZTree> tree =  unitService.queryUnitMenu(userId);
-        FastJsonUtil.write_object(response, tree);
-        return "";
-    }
+
     /**
      * 获取右侧单位列表json数据
      * @param unitId 单位ID
@@ -155,35 +182,31 @@ public class MainController {
     public String unit_index() {
         return "unit/showInfoPage";
     }
+
     /**
-     *
-     * @param
+     * 退出登录
+     * @param model m
+     * @return r
      */
-    @RequestMapping(value="/demo.html", method = RequestMethod.POST)
-    public void demo( ) {
-        Seal seal = new Seal();
-
-        seal.setUnitId("");
-        sealService.addSeal(seal);
-
-    }
     @RequestMapping(value="/system_out.html", method = RequestMethod.GET)
     public String system_out(Model model) {
-
         PowerUtil.delLoginUserFromSession(session);
         model.addAttribute("message",  "您已退出本系统！");
         return "error";
     }
+
     /**
      * 单位页面
-     * @param model
-     * @param toOpeUnitId
-     * @param
-     * @return
+     * @param model m
+     * @param toOpeUnitId 要打开的单位Id
+     * @return s
      */
     @RequestMapping(value="/unit_page.html", method = RequestMethod.GET)
-    public String unit_page(ModelMap model, String toOpeUnitId) {
-
+    public String unit_page(ModelMap model,String toOpeUnitId) {
+        //视图对象
+        ModelAndView modelAndView = new ModelAndView();
+        //设置返回视图
+        modelAndView.setViewName("unit/unit_page");
         //判断是否有进入当前单位的权限
         if(PowerUtil.checkUserIsHaveThisRangePower(session,unitService.findUnitById(toOpeUnitId),Constant.topUnitLevel)){
             //放入当前单位名称chain，先清除。此处放入单位名称chain是为了写入系统日志是方便取用
@@ -224,7 +247,9 @@ public class MainController {
             model.addAttribute("message",  "您不能访问此单位");
             return "error";
         }
+
     }
+
 
     @RequestMapping(value="/upload.html", method = RequestMethod.GET)
     public String upload(HttpServletRequest request) {
@@ -328,7 +353,7 @@ public class MainController {
     }
 
     /**
-     *
+     *错误页面
      */
     @RequestMapping(value="error.html", method = RequestMethod.GET)
     public String error(Model model) {
@@ -337,10 +362,11 @@ public class MainController {
     }
 
     /**
-     *查看附件
+     *下载附件
+     * @param sealApplyId 申请信息Id
      */
     @RequestMapping(value="attachment.html", method = RequestMethod.GET)
-    public void attachment(Model model,String sealApplyId) throws IOException {
+    public void attachment(String sealApplyId) throws IOException {
         File file = null;
         SealApply sealApply = sealService.findSealApplyById(sealApplyId);
         if(sealApply==null){
@@ -354,9 +380,9 @@ public class MainController {
             //设置MIME类型
             response.setContentType("application/octet-stream");
             //或者为response.setContentType("application/x-msdownload");
-
             //设置头信息,设置文件下载时的默认文件名，同时解决中文名乱码问题
-            response.addHeader("Content-disposition", "attachment;filename="+new String(sealApply.getAttachment().getBytes(), "ISO-8859-1"));
+            response.addHeader("Content-disposition", "attachment;filename="+new String(sealApply.getAttachment().getBytes(),
+                    "ISO-8859-1"));
 
             InputStream inputStream=new FileInputStream(file);
             ServletOutputStream outputStream=response.getOutputStream();
@@ -374,70 +400,47 @@ public class MainController {
      * 判断当前登录用户对某个功能是否有权限
      * 2018.05.24
      * @param isNeedCheckRange(1判断,0不判断)  是否需要判断范围,判断某个角色能否进入系统时,则不需要判断范围
-     * @param powerId
+     * @param powerId 权限Id
      * @param currentUnitId	当前点击的单位id,不需要传值时,传null即可
      */
     @RequestMapping(value="/check_auth.html", method = RequestMethod.POST)
     public void checkAuth(Integer isNeedCheckRange,String powerId,String currentUnitId){
-
         // 判断是否能进入某个系统时不需要判断范围
         if(isNeedCheckRange == 0){
-
             if(PowerUtil.checkUserIsHavaThisPower(session, powerId, roleAndPowerService, unitService,
                     Constant.topUnitLevel,Constant.companyLevel) ){
-
                 FastJsonUtil.write_json(response, "{\"msg\":\""+"1"+"\"}");
-
             }else{
-
                 FastJsonUtil.write_json(response, "{\"msg\":\""+"0"+"\"}");
             }
-
         }else{
             // 需要先判断管理范围再判断功能权限
-
             // 需要写入错误日志表
             if(currentUnitId == null){
-
 //                errorLogService.addErrorLog("签章平台", "userController-checkAuth-获取到的currentUnitId为null");
-
                 FastJsonUtil.write_json(response, "{\"msg\":\""+"2"+"\"}");
-
             }
-
             // 获取当前点击的单位对象
             Unit currentUnit = unitService.findUnitById(currentUnitId);
-
             // 需要写入错误日志表
             if(currentUnit == null){
-
 //                errorLogService.addErrorLog("签章平台", "userController-checkAuth-获取到的单位对象为null");
-
                 FastJsonUtil.write_json(response, "{\"msg\":\""+"2"+"\"}");
-
             }
 
             if(PowerUtil.checkUserIsHaveThisRangePower(session, currentUnit, Constant.topUnitLevel)){
                 // 如果管理范围包含当前层级,则继续判断对应的功能
-
                 if(PowerUtil.checkUserIsHavaThisPower(session, powerId, roleAndPowerService, unitService, Constant.topUnitLevel,
                         Constant.companyLevel) ){
-
                     FastJsonUtil.write_json(response, "{\"msg\":\""+"1"+"\"}");
-
                 }else{
-
                     FastJsonUtil.write_json(response, "{\"msg\":\""+"0"+"\"}");
                 }
-
             }else{
                 // 如果管理范围不包含当前层级,则表示没有权限
                 FastJsonUtil.write_json(response, "{\"msg\":\""+"0"+"\"}");
-
             }
-
         }
-
     }
 
 }
