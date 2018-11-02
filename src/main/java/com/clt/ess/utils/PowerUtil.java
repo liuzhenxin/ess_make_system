@@ -152,23 +152,17 @@ public class PowerUtil {
 
 		// 获取当前登录对象
 		User loginUser = PowerUtil.getLoginUser(session);
-
 		// 根据当前登录用户的管理范围判断是否有当前层级的管理权限
-		if(!judgeAuthority(loginUser.getPowerRange(),currentUnit.getLevel(),loginUser.getLevel(),topUnitLevel)){
-			return false;
-		}
-
-		return true;
+		return judgeAuthority(loginUser.getPowerRange(), currentUnit.getLevel(), loginUser.getLevel(), topUnitLevel);
 	}
 
 	/**
 	 * 根据操作类型，单位等级和管理员等级来判断权限
 	 * 2018.05.23
 	 * @param powerRanger 管理范围
-	 * @param unitLevel
-	 * @param
+	 * @param unitLevel 单位层级
 	 * @param topUnitLevel 配置文件中顶级单位的层级
-	 * @return
+	 * @return 结果
 	 */
 	public static boolean judgeAuthority(Integer powerRanger,Integer unitLevel,Integer userLevel,Integer topUnitLevel){
 
@@ -176,48 +170,27 @@ public class PowerUtil {
 
 		if(powerRanger == 1){
 			// 第一种情况--本级管理员用户只有本级的权限
-			if(val == 0){
-				return true;
-			}else{
-				return false;
-			}
+			return val == 0;
 
 		}else if(powerRanger == 2){
 			// 第二种情况--只能给直属下级做，最高级别自己做
-			if((userLevel == 0 && unitLevel == 0) || val == 1){
-				return true;
-			}else{
-				return false;
-			}
+			return (userLevel == 0 && unitLevel == 0) || val == 1;
 
 		}else if(powerRanger == 3){
 			// 第三种情况--给自己和直属下级做
-			if(val == 0 || val == 1){
-				return true;
-			}else{
-				return false;
-			}
+			return val == 0 || val == 1;
 
 		}else if(powerRanger == 4){
 			// 第四种情况--给自己和所有下级做
-			if(val >= 0){
-				return true;
-			}else{
-				return false;
-			}
+			return val >= 0;
 
 		}else if(powerRanger == 5){
 			// 第五种情况--只能最高级做
-			if(userLevel == topUnitLevel){
-				return true;
-			}else{
-				return false;
-			}
+			return userLevel == topUnitLevel;
 		}else{
 			// 传入其他值，说明不具有该权限
 			return false;
 		}
-
 	}
 
 	/**
@@ -227,18 +200,13 @@ public class PowerUtil {
 	 * @return
 	 */
 	public static User getLoginUser(HttpSession session){
-
-		User u = (User)session.getAttribute("user");
-		return u;
-
+		return (User)session.getAttribute("user");
 	}
-
-
 
 	/**
 	 * 删除session中的登录对象
 	 * 2018.06.05
-	 * @param session
+	 * @param session session
 	 * @return
 	 */
 	public static void delLoginUserFromSession(HttpSession session){

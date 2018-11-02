@@ -6,9 +6,9 @@ import com.clt.ess.dao.IPersonDao;
 import com.clt.ess.entity.*;
 import com.clt.ess.service.*;
 import com.clt.ess.utils.FastJsonUtil;
+import com.clt.ess.utils.FileUtil;
 import com.clt.ess.utils.PowerUtil;
 import com.clt.ess.utils.ReadPfx;
-import com.clt.ess.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,17 +23,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.clt.ess.utils.StringUtils.isNull;
 import static com.clt.ess.utils.dateUtil.getDate;
 import static com.clt.ess.utils.uuidUtil.getEssUUID;
 import static com.clt.ess.utils.uuidUtil.getUUID;
-import static com.multica.crypt.MuticaCrypt.ESSGetBase64Encode;
 
 
 @Controller
@@ -67,6 +66,8 @@ public class ApplyController {
     private IFileTypeService fileTypeService;
     @Autowired
     private IApplyService applyService;
+    @Autowired
+    private IErrorLogService errorLogService;
     /**
      * 每次拦截到请求会先访问此函数
      * @param request http请求
@@ -81,13 +82,17 @@ public class ApplyController {
 
     /**
      *访问印章申请列表
-     * @param unitId
+     * @param unitId 单位id
      */
     @RequestMapping(value="/list.html", method = RequestMethod.GET)
-    public String list(Model model, String unitId) {
+    public ModelAndView list(Model model, String unitId) {
+
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("apply/apply_list");
 
         SealApply sealApply = new SealApply();
         sealApply.setUnitId(unitId);
+        //申请信息列表里只显示登录人申请的信息
         sealApply.setApplyUserId(PowerUtil.getLoginUser(session).getUserId());
         //类别：提交申请
         sealApply.setApplyState(Constant.SUBMIT_APPLICATION);
@@ -95,36 +100,38 @@ public class ApplyController {
         //审核驳回的信息
         sealApply.setApplyState(Constant.REVIEW_NO_THROUGH);
         List<SealApply> sealApplyList_no_through = sealService.findSealApply(sealApply);
-
+        //将驳回的信息添加到list里
         sealApplyList.addAll(sealApplyList_no_through);
 
-        model.addAttribute("sealApplyList",sealApplyList);
-        model.addAttribute("unit",unitService.findUnitById(unitId));
+        modelAndView.addObject("sealApplyList",sealApplyList);
+        modelAndView.addObject("unit",unitService.findUnitById(unitId));
 
-        return "apply/apply_list";
+        return modelAndView;
     }
     /**
      *访问印章申请添加页面
-     * @param unitId
+     * @param unitId 单位id
      */
     @RequestMapping(value="/add.html", method = RequestMethod.GET)
-    public ModelAndView  add(String unitId) {
+    public ModelAndView add(String unitId) {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("apply/apply_add");
         //非空判断
         if("".equals(unitId)||unitId ==null){
             //如果空的话，返回error页面
             modelAndView.addObject("message", "访问的数据错误！");
+            modelAndView.setViewName("error");
             return modelAndView;
         }
-        //获取一级单位的印章类型
         //获取当前单位的一级单位
         Unit TopUnit = unitService.findTopUnit(unitId);
         //根据一级单位获得印章类型
         SealType sealType = new SealType();
         sealType.setTopUnitId(TopUnit.getUnitId());
+
         List<SealType> sealTypes = sealService.findSealType(sealType);
         modelAndView.addObject("sealTypes", sealTypes);
+
         //查询当前单位对应的顶级单位支持的授权类型
         List<FileType> fileTypeList = fileTypeService.findFileTypeListByTop(unitId);
 
@@ -132,16 +139,15 @@ public class ApplyController {
 
         modelAndView.addObject("unit",  unitService.findUnitById(unitId));
 
-
         //申请类型：新印章
         modelAndView.addObject("applyType", Constant.APPLYTYPE_NEW);
 
         return modelAndView;
-
     }
     /**
      *访问印章申请添加页面
-     * @param
+     * @param sealApply 申请信息
+     *
      */
     @RequestMapping(value="/add_do.html", method = RequestMethod.POST)
     @ResponseBody
@@ -150,27 +156,21 @@ public class ApplyController {
         ResultMessageBeen messageBeen = new ResultMessageBeen();
         messageBeen.setMessage("success");
         messageBeen.setBody(null);
+
         // 判断文件是否为空
         if (!attachmentFile.isEmpty()) {
-            try {
-                // 文件保存路径
-                String fileName = attachmentFile.getOriginalFilename();
-                String fileType = fileName.split("\\.")[1];
-                String UUID = getUUID();
-                String filePath = Constant.ATTACHMENT_PATH + UUID+"."+fileType;
-                // 转存文件
-                attachmentFile.transferTo(new File(filePath));
-                sealApply.setAttachment(UUID+"."+fileType);
-            } catch (Exception e) {
-                e.printStackTrace();
+            String filename = FileUtil.saveFile(attachmentFile);
+            if(filename ==null){
+                errorLogService.addErrorLog("ApplyController-add_do-上传附件保存到磁盘时出现异常！");
                 messageBeen.setMessage("error");
+            }else{
+                sealApply.setAttachment(filename);
             }
         }else{
+            errorLogService.addErrorLog("ApplyController-add_do-上传附件为空-null！");
             messageBeen.setMessage("error");
         }
-
         boolean result = applyService.addSealApply(sealApply,c,session);
-
         if(!result){
             messageBeen.setMessage("error");
         }
@@ -179,7 +179,7 @@ public class ApplyController {
 
     /**
      *访问注册UK申请添加页面
-     * @param
+     * @param unitId 单位ID
      */
     @RequestMapping(value="/register_uk.html", method = RequestMethod.GET)
     @ResponseBody
@@ -191,7 +191,6 @@ public class ApplyController {
         modelAndView.addObject("unit",  unitService.findUnitById(unitId));
 
         SealApply sealApply = new SealApply();
-
         //设置申请信息类别
         sealApply.setApplyType(Constant.APPLYTYPE_REGISTER_UK);
 
@@ -213,43 +212,44 @@ public class ApplyController {
     }
 
     /**
-     *访问印章申请添加页面
-     * @param
+     * 注册uk请求
+     * @param sealApply 申请信息
+     * @param attachmentFile 上传的附件
+     * @param attachmentPath 附件的文件名（此处是指读取UK后客户端上传附件所获得文件名）
      */
     @RequestMapping(value="/register_do.html", method = RequestMethod.POST)
     @ResponseBody
     public String register_do(SealApply sealApply, MultipartFile attachmentFile,String attachmentPath,
                 Certificate c) {
+        //返回结果对象
         ResultMessageBeen messageBeen = new ResultMessageBeen();
+        //结果类型
         messageBeen.setMessage("success");
+        //携带数据对象
         messageBeen.setBody(null);
         //先判断是否上传文件，如果没有按照附件路径找到文件。
         //如果有，将上传文件作为附件。
-        // 判断文件是否为空
+        // 判断附件地址是否为空
         if("".equals(attachmentPath)){
-            //路径为空
+            //附件对象是否为空
             if (!attachmentFile.isEmpty()) {
-                try {
-                    // 文件保存路径
-                    String fileName = attachmentFile.getOriginalFilename();
-                    String fileType = fileName.split("\\.")[1];
-                    String UUID = getUUID();
-                    String filePath = Constant.ATTACHMENT_PATH + UUID+"."+fileType;
+                 //上传文件名称
+                String filename = FileUtil.saveFile(attachmentFile);
 
-                    // 转存文件
-                    attachmentFile.transferTo(new File(filePath));
-                    sealApply.setAttachment(UUID+"."+fileType);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if(filename == null){
+                    errorLogService.addErrorLog("ApplyController-add_do-上传附件保存到磁盘时出现异常！");
                     messageBeen.setMessage("error");
+                }else{
+                    sealApply.setAttachment(filename);
                 }
             }else{
+                errorLogService.addErrorLog("ApplyController-add_do-上传附件和附件地址都为空！");
                 messageBeen.setMessage("error");
             }
         }else{
             sealApply.setAttachment(attachmentPath);
         }
-
+        //添加申请信息
         boolean result = applyService.addSealApply(sealApply,c,session);
         if(!result){
             messageBeen.setMessage("error");
@@ -259,48 +259,54 @@ public class ApplyController {
 
     /**
      * 获取人员信息
-     * @param phone 关键词
+     * @param keyword 关键词
      */
     @RequestMapping(value="/findPerson.html", method = RequestMethod.GET)
     @ResponseBody
-    public void findPerson(String phone) {
+    public String findPerson(String keyword) {
+        //结果对象
         ResultMessageBeen messageBeen = new ResultMessageBeen();
-
-        if(!"".equals(phone) && phone!=null){
-            messageBeen.setMessage("ESSSUCCESS");
-            List<Person> personList = userService.findPersonListByKeyword(phone);
+        //判断关键词是为空
+        if(!"".equals(keyword) && keyword!=null){
+            //根据关键词查找人员信息
+            List<Person> personList = userService.findPersonListByKeyword(keyword);
+            //添加数据到返回结果中
             messageBeen.setBody(personList);
+            //返回结果类型为成功
+            messageBeen.setMessage("ESSSUCCESS");
         }else {
             messageBeen.setMessage("ESSERROR");
             messageBeen.setBody("关键字不可为空！");
         }
-        String result_1 = FastJsonUtil.toJSONString(messageBeen);
-        try {
-            PrintWriter out = response.getWriter();  //输出中文，这一句一定要放到前面两句的后面，否则中文返回到页面是乱码
-            out.print(new String(result_1.getBytes("utf8"),"iso8859-1"));
-            out.flush();
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        return new String(FastJsonUtil.toJSONString(messageBeen).getBytes(StandardCharsets.UTF_8),StandardCharsets.ISO_8859_1);
     }
 
     /**
      *解析pfx证书
-     * @param
+     * @param pfxBase64 pfx证书base64编码
+     * @param cerPsw 证书密码
      */
     @RequestMapping(value="/get_pfx_info.html", method = RequestMethod.POST)
     @ResponseBody
-    public String getPfxInfo(String pfxBase64, String cerPsw) throws UnsupportedEncodingException {
-        //补全证书单位名称
+    public String getPfxInfo(String pfxBase64, String cerPsw){
+
         ResultMessageBeen messageBeen = new ResultMessageBeen();
         messageBeen.setMessage("success");
         messageBeen.setBody(null);
-        if("".equals(pfxBase64)||"".equals(cerPsw)){
-            messageBeen.setMessage("error");
-        }else{
-            Map<String,String> cerInfo = ReadPfx.GetCertInfoFromPfxBase64(pfxBase64,cerPsw);
+        if(!isNull(pfxBase64)&&!isNull(cerPsw)){
+            //当证书和密码都不为空时
+            Map<String,String> cerInfo = new HashMap<>();
+            try {
+                //解析pfx证书的信息
+                cerInfo = ReadPfx.GetCertInfoFromPfxBase64(pfxBase64,cerPsw);
+            } catch (Exception e) {
+                errorLogService.addErrorLog("ApplyController-getPfxInfo-解析pfx证书出错-null！");
+                messageBeen.setMessage("error");
+                e.printStackTrace();
+            }
+            //证书所有人信息
             String owner = cerInfo.get("owner");
+
             String[] a = owner.split(", ");
             Map<String,String> ownerInfo = new HashMap<>();
             ownerInfo.put(a[a.length-1].split("=")[0],a[a.length-1].split("=")[1]);
@@ -311,11 +317,11 @@ public class ApplyController {
             ownerInfo.put(a[a.length-6].split("=")[0],a[a.length-6].split("=")[1]);
 
             messageBeen.setBody(ownerInfo);
+        }else{
+            messageBeen.setMessage("error");
         }
-
-        return new String(FastJsonUtil.toJSONString(messageBeen).getBytes("utf8"),"iso8859-1");
+        return new String(FastJsonUtil.toJSONString(messageBeen).getBytes(StandardCharsets.UTF_8),StandardCharsets.ISO_8859_1);
     }
-
 
     /**
      *删除申请信息
@@ -323,25 +329,29 @@ public class ApplyController {
      */
     @RequestMapping(value="/delete.html", method = RequestMethod.GET)
     @ResponseBody
-    public String sealApply_delete(String sealApplyId) throws UnsupportedEncodingException {
-        //补全证书单位名称
+    public String sealApply_delete(String sealApplyId){
+
         ResultMessageBeen messageBeen = new ResultMessageBeen();
         messageBeen.setMessage("success");
         messageBeen.setBody(null);
-
+        //要删除的申请信息ID
         SealApply sealApply  = new SealApply();
         sealApply.setSealApplyId(sealApplyId);
-        sealService.delSealApply(sealApply);
-
-        return new String(FastJsonUtil.toJSONString(messageBeen).getBytes("utf8"),"iso8859-1");
+        //执行删除动作
+        boolean result = sealService.delSealApply(sealApply);
+        if(!result){
+            messageBeen.setMessage("error");
+            errorLogService.addErrorLog("ApplyController-sealApply_delete-删除申请信息时出错！");
+        }
+        return FastJsonUtil.toJSONString(messageBeen);
     }
 
     /**
      *访问印章申请添加页面
-     * @param sealId
+     * @param sealId 印章id
      */
     @RequestMapping(value="/repeat.html", method = RequestMethod.GET)
-    public ModelAndView repeat(Model model, String sealId) {
+    public ModelAndView repeat(String sealId) {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("apply/apply_repeat");
 
@@ -363,7 +373,7 @@ public class ApplyController {
            sealApply.setUnit(seal.getUnit());
            //设置重做申请的身份证信息（手签）
            sealApply.setSealHwUserIdNum(seal.getSealHwIdNum());
-
+           //设置重做申请的授权类型代码
            sealApply.setFileTypeNum(seal.getFileTypeNum());
 
            modelAndView.addObject("sealApply", sealApply);
@@ -494,7 +504,6 @@ public class ApplyController {
             logService.addSystemLog("申请延期印章"+sealApply.getSealName(),"印章延期",
                     sealApply.getUnitId(),user.getUserId(),"");
         }
-
         return FastJsonUtil.toJSONString(messageBeen);
     }
 

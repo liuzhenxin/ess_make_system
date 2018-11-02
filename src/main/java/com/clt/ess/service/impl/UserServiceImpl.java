@@ -33,6 +33,10 @@ public class UserServiceImpl implements IUserService {
         return userDao.findLoginUserByPersonId(u);
     }
 
+    /**
+     * 根据关键字查找人员列表
+     * @param keyword 关键词
+     */
     @Override
     public List<Person> findPersonListByKeyword(String keyword) {
         return personDao.findPersonListByKeyword(keyword);

@@ -1,6 +1,11 @@
 package com.clt.ess.utils;
 
+import com.clt.ess.base.Constant;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.*;
+
+import static com.clt.ess.utils.uuidUtil.getUUID;
 
 public class FileUtil {
 
@@ -122,5 +127,23 @@ public class FileUtil {
             e.printStackTrace();
         }
         return buffer;
+    }
+    /**
+     * 保存附件并返回uuid+后缀名
+     */
+    public static String saveFile(MultipartFile multipartFile){
+        try {
+            // 文件保存路径
+            String fileName = multipartFile.getOriginalFilename();
+            String fileType = fileName.split("\\.")[1];
+            String UUID = getUUID();
+            String filePath = Constant.ATTACHMENT_PATH + UUID+"."+fileType;
+            // 转存文件
+            multipartFile.transferTo(new File(filePath));
+            return UUID+"."+fileType;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

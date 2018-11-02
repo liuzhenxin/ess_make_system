@@ -9,6 +9,9 @@
 <html>
 <head>
     <title>Title</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/pintuer.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/mask.css">
 </head>
 <body>
 <img src="${pageContext.request.contextPath}/images/sealBackground.jpg" width="100%" height="100%"/>

@@ -118,6 +118,11 @@ public class Constant {
     public static final String Message_Type_auDelay = "4";
     //证书延期
     public static final String Message_Type_cerDelay = "5";
-
-
+    /**
+     * 独立单位配置num
+     */
+    //代表 颁发者单位
+    public static final int  INDEPENDENTUNITCONFIG_NUM_3=3;
+    //代表 UK注册时到期时间和授权文档类型是以系统为准还是以Uk为准
+    public static final int  INDEPENDENTUNITCONFIG_NUM_4=4;
 }

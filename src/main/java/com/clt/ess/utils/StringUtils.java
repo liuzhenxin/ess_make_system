@@ -22,37 +22,48 @@ public class StringUtils {
 
     /**
      * 获取一个对称加密的随机密码
-     * @return
-     * @throws MuticaCryptException
+     * @return  随机密码
      */
     public static String getEncryptPwd() {
+        //得到一个uuid
         String uuid = getUUID();
+        //取中间的8位
         String pwd = uuid.substring(8,16);
-        System.out.println(pwd);
         byte[] b = new byte[0];
         try {
+            //对密码进行对称加密
             b = ESSEncryptData(pwd.getBytes(),null,"esspwd".getBytes());
         } catch (MuticaCryptException e) {
             e.printStackTrace();
         }
+        //将加密后的密码base64编码
         return ESSGetBase64Encode(b);
     }
     /**
      * 解密本系统生成的密码
-     * @param pwd
-     * @return
-     * @throws MuticaCryptException
+     * @param pwd  密码
+     * @return 密码明文
      */
-    public static String getDecryptPwd(String pwd) {
-        byte[] pwdByte = new byte[0];
-        try {
-            pwdByte = ESSDecryptData(ESSGetBase64Decode(pwd),"esspwd".getBytes());
-        } catch (MuticaCryptException e) {
-            e.printStackTrace();
-        }
+    public static String getDecryptPwd(String pwd) throws MuticaCryptException {
+        byte[]  pwdByte = ESSDecryptData(ESSGetBase64Decode(pwd),"esspwd".getBytes());
         return new String(pwdByte);
     }
 
+    /**
+     * 判断字符是否为空
+     * @param s 待判断字符
+     * @return 判断结果
+     */
+    public static boolean isNull(String s) {
+        if(s == null){
+            return false;
+        }
+        s = s.replace(" ","");
+        if("".equals(s) ){
+            return false;
+        }
+        return true;
+    }
 
     public static void main(String[] args) throws MuticaCryptException {
 

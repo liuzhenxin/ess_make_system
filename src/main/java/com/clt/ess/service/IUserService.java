@@ -25,8 +25,7 @@ public interface IUserService {
 
     /**
      * 根据关键字查找人员列表
-     * @param keyword
-     * @return
+     * @param keyword 关键词
      */
     List<Person> findPersonListByKeyword(String keyword);
 }

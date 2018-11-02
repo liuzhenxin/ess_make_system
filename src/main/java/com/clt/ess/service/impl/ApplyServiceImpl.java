@@ -36,10 +36,18 @@ public class ApplyServiceImpl implements IApplyService {
     IUnitService unitService;
     @Autowired
     ILogService logService;
-
+    @Autowired
+    private IErrorLogService errorLogService;
+    /**
+     * 添加制作印章申请信息
+     * @param sealApply 申请信息对象
+     * @param c 证书对象
+     * @param session session
+     * @return 是否添加成功
+     */
     @Override
     public boolean addSealApply(SealApply sealApply, Certificate c, HttpSession session){
-
+        //结果
         boolean result = false;
         //生成申请信息ID
         sealApply.setSealApplyId(getEssUUID(sealApply.getUnitId()));
@@ -56,24 +64,18 @@ public class ApplyServiceImpl implements IApplyService {
             //申请新印章
             case Constant.APPLYTYPE_NEW:
                 result = addSealApplyNew(sealApply, c, session);
-//                logService.addSystemLog("申请制作新印章"+sealApply.getSealName(),"申请新印章",
-//                        sealApply.getUnitId(),user.getUserId(),"");
                 logDetail = "向"+unitService.getUnitNameChain(sealApply.getUnitId())+"申请制作新印章："+sealApply.getSealName();
                 logService.addLogAddSealApplyNew(logDetail, sealApply.getUnitId(),user.getUserId(),"");
                 break;
             //注册UK
             case Constant.APPLYTYPE_REGISTER_UK:
                 result= addSealApplyRegister(sealApply, c,session);
-//                logService.addSystemLog("申请注册已有UK印章"+sealApply.getSealName(),"注册UK印章",
-//                        sealApply.getUnitId(),user.getUserId(),"");
                 logDetail = "向"+unitService.getUnitNameChain(sealApply.getUnitId())+"申请注册已有UK："+sealApply.getSealName();
                 logService.addLogRegisterSealApplyNew(logDetail, sealApply.getUnitId(),user.getUserId(),"");
                 break;
             //申请重做
             case Constant.APPLYTYPE_REPEAT:
                 result = addSealApplyRepeat(sealApply, c, session);
-//                logService.addSystemLog("申请重做印章"+sealApply.getSealName(),"申请重做印章",
-//                        sealApply.getUnitId(),user.getUserId(),"");
                 logDetail = "向"+unitService.getUnitNameChain(sealApply.getUnitId())+"申请重新制作印章："+sealApply.getSealName();
                 logService.addLogReMakeSealApplyNew(logDetail, sealApply.getUnitId(),user.getUserId(),"");
                 break;
@@ -87,28 +89,34 @@ public class ApplyServiceImpl implements IApplyService {
         sealApply.setSealId(getEssUUID(sealApply.getUnitId()));
         //创建证书
         //生成证书信息，返回证书ID
-
         c.setCertificateId(getEssUUID(sealApply.getUnitId()));
-
+        //是否提供提供证书
         if(c.getFileState() == Constant.FILE_STATE_PFX){
-            Map<String,String> cerInfo = ReadPfx.GetCertInfoFromPfxBase64(c.getCerBase64(),c.getCerPsw());
-
-
-            String version = null;
-            if (cerInfo != null) {
-                version = cerInfo.get("version");
-            }else{
-                //抛出解析证书失败异常！或者错误日志
-
+            //申请新印章制作时提供pfx证书，先解析证书信息 cerInfo
+            Map<String,String> cerInfo = new HashMap<>();
+            try {
+                cerInfo = ReadPfx.GetCertInfoFromPfxBase64(c.getCerBase64(),c.getCerPsw());
+            } catch (Exception e) {
+                errorLogService.addErrorLog("ApplyServiceImpl-addSealApplyNew-解析pfx证书出错-null！");
+                e.printStackTrace();
             }
-            String sn = cerInfo.get("sn");
-            String startTime = cerInfo.get("startTime");
-            String endTime = cerInfo.get("endTime");
-            String owner = cerInfo.get("owner");
-            String issuer = cerInfo.get("issuer");
-            String algorithm = cerInfo.get("algorithm");
-            String[] a = owner.split(", ");
+            //证书版本
+            String version = cerInfo.get("version");
 
+            String sn = cerInfo.get("sn");
+            //证书有效期起始时间
+            String startTime = cerInfo.get("startTime");
+            //证书有效期结束时间
+            String endTime = cerInfo.get("endTime");
+            //证书所有人
+            String owner = cerInfo.get("owner");
+            //证书颁发者
+            String issuer = cerInfo.get("issuer");
+            //算法
+            String algorithm = cerInfo.get("algorithm");
+
+            String[] a = owner.split(", ");
+            //将证书的所有人解析提取省市单位部门等信息
             Map<String,String> ownerInfo = new HashMap<>();
             ownerInfo.put(a[a.length-1].split("=")[0],a[a.length-1].split("=")[1]);
             ownerInfo.put(a[a.length-2].split("=")[0],a[a.length-2].split("=")[1]);
@@ -116,7 +124,7 @@ public class ApplyServiceImpl implements IApplyService {
             ownerInfo.put(a[a.length-4].split("=")[0],a[a.length-4].split("=")[1]);
             ownerInfo.put(a[a.length-5].split("=")[0],a[a.length-5].split("=")[1]);
             ownerInfo.put(a[a.length-6].split("=")[0],a[a.length-6].split("=")[1]);
-
+            //下操作是为了去除逗号和空格
             //a[0] CN  证书名称
             String cerName = ownerInfo.get("CN");
             c.setCerName((cerName.substring(1, cerName.length()-1)).replace(" ",""));
@@ -144,8 +152,10 @@ public class ApplyServiceImpl implements IApplyService {
             c.setCertificateVersion(version);
             c.setFileState(Constant.FILE_STATE_PFX);
             c.setPfxBase64(c.getPfxBase64());
+
             //设置证书信息：证书密码
             c.setCerPsw(c.getCerPsw());
+
         }else{
             c.setCertificateVersion(Constant.CER_VERSION);
             c.setAlgorithm(Constant.CER_ALGORITHM);
@@ -159,8 +169,7 @@ public class ApplyServiceImpl implements IApplyService {
         String certificateId  = certificateService.addCertificate(c);
         //申请信息中添加证书
         sealApply.setCertificateId(certificateId);
-        sealService.addSealApply(sealApply);
-        return true;
+        return sealService.addSealApply(sealApply);
     }
 
     @Override
@@ -174,14 +183,10 @@ public class ApplyServiceImpl implements IApplyService {
         //生成证书，返回证书ID
         c.setCertificateId(getEssUUID(sealApply.getUnitId()));
 
-        String pfxBase64 =null;
-        try {
-            pfxBase64 = encodeBase64File("d:/temp/root.cer");
-            pfxBase64 = c.getPfxBase64();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Map<String,String> cerInfo = ReadPfx.showCertInfo(pfxBase64);
+        String cerBase64 =null;
+        cerBase64 = c.getCerBase64();
+        //pfxBase64 = encodeBase64File("d:/temp/root.cer");
+        Map<String,String> cerInfo = ReadPfx.showCertInfo(cerBase64);
         String version = cerInfo.get("version");
         String sn = cerInfo.get("sn");
         String startTime = cerInfo.get("startTime");
@@ -218,11 +223,8 @@ public class ApplyServiceImpl implements IApplyService {
         c.setStartTime(startTime);
         c.setEndTime(endTime);
         c.setApplyTime(startTime);
-
         c.setIssuer(issuer);
-
         c.setCerBase64(c.getCerBase64());
-
         c.setAlgorithm(algorithm);
         c.setCerClass(Constant.CER_CLASS);
         c.setCertificateVersion(version);
@@ -237,8 +239,7 @@ public class ApplyServiceImpl implements IApplyService {
 
         sealApply.setCertificateId(certificateId);
 
-        sealService.addSealApply(sealApply);
-        return true;
+        return sealService.addSealApply(sealApply);
     }
 
     @Override
@@ -246,11 +247,19 @@ public class ApplyServiceImpl implements IApplyService {
         //创建证书
         //生成证书信息，返回证书ID
         c.setCertificateId(getEssUUID(sealApply.getUnitId()));
-
         if(c.getFileState() == Constant.FILE_STATE_PFX){
-            Map<String,String> cerInfo = ReadPfx.GetCertInfoFromPfxBase64(c.getCerBase64(),c.getCerPsw());
+
+            Map<String,String> cerInfo = new HashMap<>();
+            try {
+                cerInfo = ReadPfx.GetCertInfoFromPfxBase64(c.getCerBase64(),c.getCerPsw());
+            } catch (Exception e) {
+                errorLogService.addErrorLog("ApplyServiceImpl-addSealApplyRepeat-解析pfx证书出错-null！");
+                e.printStackTrace();
+            }
+            //证书版本
             String version = cerInfo.get("version");
             String sn = cerInfo.get("sn");
+            //有效期起始时间
             String startTime = cerInfo.get("startTime");
             String endTime = cerInfo.get("endTime");
             String owner = cerInfo.get("owner");
@@ -299,9 +308,7 @@ public class ApplyServiceImpl implements IApplyService {
             c.setCertificateVersion(Constant.CER_VERSION);
             c.setAlgorithm(Constant.CER_ALGORITHM);
             c.setCerClass(Constant.CER_CLASS);
-            //设置证书状态未生成
             c.setFileState(Constant.FILE_STATE_NULL);
-            //证书申请时间
             c.setApplyTime(getStringDateShort());
         }
         //获得证书ID

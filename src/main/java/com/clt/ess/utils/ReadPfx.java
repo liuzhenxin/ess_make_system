@@ -9,6 +9,7 @@ import sun.security.x509.X509CertInfo;
 
 import java.io.*;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
@@ -61,74 +62,67 @@ public class ReadPfx {
      * @param strPassword 密码
      * @return 返回信息集合
      */
-    public static Map<String,String> GetCertInfoFromPfxBase64(String pfxBase64, String strPassword){
+    public static Map<String,String> GetCertInfoFromPfxBase64(String pfxBase64, String strPassword) throws Exception {
         Map<String,String> cerInfoMap = new HashMap<>();
-        try {
-            KeyStore ks = KeyStore.getInstance("PKCS12");
-            //将传入的base64字符串生成临时文件
-            String tempPath = PFX_FILE_PATH+getUUID()+".pfx";
+        KeyStore ks = KeyStore.getInstance("PKCS12");
+        //将传入的base64字符串生成临时文件
+        String tempPath = PFX_FILE_PATH+getUUID()+".pfx";
 
-            decoderBase64File(pfxBase64,tempPath);
-            //将临时文件读取
-            FileInputStream fis = new FileInputStream(tempPath);
-            // If the keystore password is empty(""), then we have to set
-            // to null, otherwise it won't work!!!
-            char[] nPassword = null;
-            if ((strPassword == null) || strPassword.trim().equals("")){
-                nPassword = null;
-            }
-            else {
-                nPassword = strPassword.toCharArray();
-            }
-            ks.load(fis, nPassword);
-            fis.close();
+        decoderBase64File(pfxBase64,tempPath);
+        //将临时文件读取
+        FileInputStream fis = new FileInputStream(tempPath);
+        // If the keystore password is empty(""), then we have to set
+        // to null, otherwise it won't work!!!
+        char[] nPassword = null;
+        if ((strPassword == null) || strPassword.trim().equals("")){
+            nPassword = null;
+        }
+        else {
+            nPassword = strPassword.toCharArray();
+        }
+        ks.load(fis, nPassword);
+        fis.close();
 
-            Enumeration enumas = ks.aliases();
-            String keyAlias = null;
-            if (enumas.hasMoreElements())// we are readin just one certificate.
-            {
-                keyAlias = (String)enumas.nextElement();
-            }
-            // Now once we know the alias, we could get the keys.
+        Enumeration enumas = ks.aliases();
+        String keyAlias = null;
+        if (enumas.hasMoreElements())// we are readin just one certificate.
+        {
+            keyAlias = (String)enumas.nextElement();
+        }
+        // Now once we know the alias, we could get the keys.
 //            System.out.println("is key entry=" + ks.isKeyEntry(keyAlias));
-            PrivateKey prikey = (PrivateKey) ks.getKey(keyAlias, nPassword);
-            Certificate cert = ks.getCertificate(keyAlias);
-            //创建X509工厂类
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        PrivateKey prikey = (PrivateKey) ks.getKey(keyAlias, nPassword);
+        Certificate cert = ks.getCertificate(keyAlias);
+        //创建X509工厂类
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
-            X509Certificate oCert =(X509Certificate)cf.generateCertificate(byte2Input(cert.getEncoded()));
+        X509Certificate oCert =(X509Certificate)cf.generateCertificate(byte2Input(cert.getEncoded()));
 
-            SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
-            String info = null;
-            //获得证书版本
-            cerInfoMap.put("version",String.valueOf(oCert.getVersion()));
-            //获得证书序列号
-            cerInfoMap.put("sn",oCert.getSerialNumber().toString(16));
-            //获得证书有效期
-            cerInfoMap.put("startTime",dateformat.format(oCert.getNotBefore()));
-            //获得证书失效日期
-            cerInfoMap.put("endTime",dateformat.format(oCert.getNotAfter()));
-            //获得证书主体信息
-            cerInfoMap.put("owner",oCert.getSubjectDN().getName());
+        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+        String info = null;
+        //获得证书版本
+        cerInfoMap.put("version",String.valueOf(oCert.getVersion()));
+        //获得证书序列号
+        cerInfoMap.put("sn",oCert.getSerialNumber().toString(16));
+        //获得证书有效期
+        cerInfoMap.put("startTime",dateformat.format(oCert.getNotBefore()));
+        //获得证书失效日期
+        cerInfoMap.put("endTime",dateformat.format(oCert.getNotAfter()));
+        //获得证书主体信息
+        cerInfoMap.put("owner",oCert.getSubjectDN().getName());
 //            System.out.println("证书扩展域:" + oCert.getSubjectDN().getName());
 //            String[] a = oCert.getSubjectDN().getName().split(", ");
 //            for(String a12:a){
 //                System.out.println(a12);
 //            }
-            //获得证书颁发者信息
-            cerInfoMap.put("issuer",oCert.getIssuerDN().getName());
+        //获得证书颁发者信息
+        cerInfoMap.put("issuer",oCert.getIssuerDN().getName());
 //            System.out.println("证书扩展域:" + oCert.getIssuerDN().getName());
-            //获得证书签名算法名称
-            cerInfoMap.put("algorithm",oCert.getSigAlgName());
+        //获得证书签名算法名称
+        cerInfoMap.put("algorithm",oCert.getSigAlgName());
 
+        return cerInfoMap;
 
-            return cerInfoMap;
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public static Map<String,String> showCertInfo(String cerBase64) {

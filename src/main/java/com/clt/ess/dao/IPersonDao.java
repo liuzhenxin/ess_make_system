@@ -14,7 +14,9 @@ public interface IPersonDao {
 
 
     Person findPersonById(String personId);
-
-
+    /**
+     * 根据关键字查找人员列表
+     * @param keyword 关键词
+     */
     List<Person> findPersonListByKeyword(String keyword);
 }

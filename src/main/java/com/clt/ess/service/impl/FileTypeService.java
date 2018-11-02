@@ -1,9 +1,13 @@
 package com.clt.ess.service.impl;
 
+import com.clt.ess.base.Constant;
 import com.clt.ess.dao.IFileTypeDao;
 import com.clt.ess.dao.IIndependentUnitConfigDao;
+import com.clt.ess.dao.ISysVerifyDao;
 import com.clt.ess.entity.FileType;
 import com.clt.ess.entity.IndependentUnitConfig;
+import com.clt.ess.entity.SysVerify;
+import com.clt.ess.entity.Unit;
 import com.clt.ess.service.IFileTypeService;
 import com.clt.ess.service.IUnitService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +20,12 @@ import java.util.List;
 public class FileTypeService implements IFileTypeService {
     @Autowired
     private IFileTypeDao fileTypeDao;
-
-    @Autowired
-    private IUnitService unitService;
     @Autowired
     private IIndependentUnitConfigDao independentUnitConfigDao;
+    @Autowired
+    private ISysVerifyDao sysVerifyDao;
+    @Autowired
+    private IUnitService unitService;
 
     @Override
     public FileType findFileTypeById(String fileTypeId) {
@@ -33,13 +38,33 @@ public class FileTypeService implements IFileTypeService {
         return fileTypeDao.findFileTypeListByUnitId(topUnitId);
     }
 
+    /**
+     * 根据单位ID查询授权文档类型
+     * @param unitId 单位ID
+     * @return 授权文档类型集合
+     */
     @Override
     public List<FileType> findFileTypeListByTop(String unitId) {
+        //根据unitId 查询授权代码
+        SysVerify sysVerify = sysVerifyDao.findSysVerifyById(unitId);
+        if(sysVerify ==null){
+            //当前单位没有记录 查找一级单位
+            Unit topUnit =unitService.findTopUnit(unitId);
+            sysVerify = sysVerifyDao.findSysVerifyById(topUnit.getUnitId());
+        }
+
+        String sAuth_1 = sysVerify.getJurProductCode();
+
         //暂时自定义
         String sAuth = "31";
 
         return GetProductInfoFromAuthNumber(sAuth);
     }
+    /**
+     * 根据授权代码获取授权具体内容
+     * @param sAuth 授权代码
+     * @return 授权具体内容
+     */
     @Override
     public  List<FileType> GetProductInfoFromAuthNumber(String sAuth){
         int iAuth = Integer.parseInt(sAuth);
@@ -96,6 +121,12 @@ public class FileTypeService implements IFileTypeService {
         }
         return retList;
     }
+
+    /**
+     * 根据授权内容转换层授权代码
+     * @param sProducts 授权内容
+     * @return 授权内容
+     */
     @Override
     public int GetAuthNumberFromProductInfo(String sProducts){
         int iAuth = 0;
@@ -117,17 +148,22 @@ public class FileTypeService implements IFileTypeService {
             }else if(s[i].indexOf("ESSMidWare") != -1){
                 iAuth = iAuth | 64;
             }else{
-
             }
         }
         return iAuth;
     }
-
+    /**
+     * 查询 UK注册时到期时间和授权文档类型是以系统为准还是以UK为准
+     * @param unitId 单位ID
+     * @return 1根据平台 2根据UK
+     */
     @Override
     public String findFileTypeConfigByTop(String unitId) {
         IndependentUnitConfig independentUnitConfig = new IndependentUnitConfig();
         independentUnitConfig.setIndependentUnitId(unitId);
-        independentUnitConfig.setNum(4);
+        //查询类型 ：UK注册时到期时间和授权文档类型是以系统为准还是以Uk为准
+        independentUnitConfig.setNum(Constant.INDEPENDENTUNITCONFIG_NUM_4);
+        //1根据平台 2根据UK
         return independentUnitConfigDao.findIndependentUnitConfig(independentUnitConfig);
     }
 }

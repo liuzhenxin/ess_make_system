@@ -7,9 +7,11 @@ import com.clt.ess.entity.Unit;
 import java.util.List;
 
 public interface IUnitService {
+
     List<ZTree> queryUnitMenu(String unitId);
+
     Unit findUnitById(String unitId);
-    Unit findTopUnitByChildUnitId(String unitId);
+
     Unit findTopUnit(String unitId);
 
     List<IssuerUnit> findIssuerUnitByUnitId(String unitId);

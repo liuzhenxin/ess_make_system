@@ -20,7 +20,7 @@ public class SysVerify {
 	
 	// 移动手签数量
 	private Integer mobileHwJurSize;
-	
+	//授权编码编码
 	private String jurProductCode;
 	
 	private String dueTime;
