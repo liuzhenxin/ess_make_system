@@ -236,6 +236,9 @@ public class CertificateUtil {
             X509CertImpl cert = new X509CertImpl(info);
             cert.sign(issuer_PrivateKey, algorithm);
 
+
+
+
             KeyStore store = KeyStore.getInstance("PKCS12");
             //System.out.println(sNewPfxPath);
             store.load(null, null);

@@ -12,7 +12,9 @@ public interface IFileTypeService {
     List<FileType> findFileTypeListByUnitId(String UnitId);
 
     List<FileType> findFileTypeListByTop(String unitId);
+
     List<FileType> GetProductInfoFromAuthNumber(String sAuth);
+
     int GetAuthNumberFromProductInfo(String sProducts);
 
     /**

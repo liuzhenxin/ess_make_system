@@ -43,13 +43,9 @@ public class ApplyController {
     protected HttpSession session;
 
     @Autowired
-    private IPersonDao personDao;
-    @Autowired
     private ISealService sealService;
     @Autowired
     private IUnitService unitService;
-    @Autowired
-    private ICertificateService certificateService;
     @Autowired
     private ISealImgService sealImgService;
     @Autowired
@@ -79,7 +75,6 @@ public class ApplyController {
         this.response = response;
         this.session = request.getSession();
     }
-
     /**
      *访问印章申请列表
      * @param unitId 单位id
@@ -347,7 +342,7 @@ public class ApplyController {
     }
 
     /**
-     *访问印章申请添加页面
+     *访问印章申请重做页面
      * @param sealId 印章id
      */
     @RequestMapping(value="/repeat.html", method = RequestMethod.GET)

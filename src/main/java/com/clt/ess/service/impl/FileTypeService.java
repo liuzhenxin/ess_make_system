@@ -46,14 +46,14 @@ public class FileTypeService implements IFileTypeService {
     @Override
     public List<FileType> findFileTypeListByTop(String unitId) {
         //根据unitId 查询授权代码
-        SysVerify sysVerify = sysVerifyDao.findSysVerifyById(unitId);
-        if(sysVerify ==null){
-            //当前单位没有记录 查找一级单位
-            Unit topUnit =unitService.findTopUnit(unitId);
-            sysVerify = sysVerifyDao.findSysVerifyById(topUnit.getUnitId());
-        }
-
-        String sAuth_1 = sysVerify.getJurProductCode();
+//        SysVerify sysVerify = sysVerifyDao.findSysVerifyById(unitId);
+//        if(sysVerify ==null){
+//            //当前单位没有记录 查找一级单位
+//            Unit topUnit =unitService.findTopUnit(unitId);
+//            sysVerify = sysVerifyDao.findSysVerifyById(topUnit.getUnitId());
+//        }
+//
+//        String sAuth_1 = sysVerify.getJurProductCode();
 
         //暂时自定义
         String sAuth = "31";
